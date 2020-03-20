@@ -64,7 +64,7 @@ CREATE TABLE `sys_menu` (
   `icon` varchar(100) DEFAULT NULL COMMENT '图标',
   `is_show` char(1) NOT NULL COMMENT '是否在菜单中显示',
   `create_date` datetime NOT NULL COMMENT '创建时间',
-  `update_date` datetime NOT NULL COMMENT '更新时间',
+  `update_date` datetime DEFAULT NULL COMMENT '更新时间',
   `remarks` varchar(255) DEFAULT NULL COMMENT '备注信息',
   `del_flag` char(1) NOT NULL DEFAULT '0' COMMENT '删除标记',
   `title` varchar(100) NOT NULL,

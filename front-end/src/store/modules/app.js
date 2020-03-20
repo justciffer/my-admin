@@ -1,5 +1,5 @@
-import {otherRouter, appRouter} from '@/router/router';
-import Main from '@/views/Main.vue';
+/* eslint-disable */
+import {appRouter, otherRouter} from '@/router/router';
 import Util from '@/libs/util';
 import Cookies from 'js-cookie';
 import Vue from 'vue';

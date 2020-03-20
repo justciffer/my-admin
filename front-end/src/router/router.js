@@ -67,7 +67,7 @@ export let appRouter = [
 if(localStorage.getItem("user")){   
     if(localStorage.getItem('menuList')){
         let list = JSON.parse(localStorage.getItem('menuList'));
-        appRouter =util.reloadMenu(list);
+        appRouter = util.reloadMenu(list);
     }
     
 }
