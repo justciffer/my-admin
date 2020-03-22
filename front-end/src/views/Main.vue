@@ -59,6 +59,8 @@
         <div class="single-page-con" :style="{left: shrink?'60px':'200px'}">
             <div class="single-page">
                 <keep-alive :include="cachePage">
+                    <!-- 路由出口 -->
+                    <!-- todo 路由匹配到的组件将渲染在这里 -->
                     <router-view></router-view>
                 </keep-alive>
             </div>

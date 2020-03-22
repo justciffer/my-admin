@@ -46,6 +46,7 @@ export const locking = {
 };
 
 // 作为Main组件的子页面展示但是不在左侧菜单显示的路由写在otherRouter里
+//todo: 默认页面
 export const otherRouter = {
     path: '/',
     name: 'otherRouter',

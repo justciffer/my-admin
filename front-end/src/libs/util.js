@@ -409,6 +409,7 @@ util.reloadMenu=function(list){
             _menuList.push(_item);
         }
     });
+    console.log(_menuList);
     return _menuList;
 };
 
