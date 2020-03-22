@@ -208,3 +208,19 @@ INSERT INTO `sys_user` VALUES ('574a0a10-f5e7-11e7-ae1f-598e5a070a61', '24', '96
 INSERT INTO `sys_user` VALUES ('7a8b50d0-f5d1-11e7-9e2c-ebedd8cae72e', '1', '96e79218965eb72c92a549dd5a330112', '2', '3', '4', null, null, '2018-01-10 14:42:51', '2018-01-10 14:43:36', null, '0', 'caacf61017114120bcf7bf1049b6d4c3', '1');
 INSERT INTO `sys_user` VALUES ('7e9da4c0-f5d1-11e7-9e2c-ebedd8cae72e', '2', '96e79218965eb72c92a549dd5a330112', '3', '4', '5', null, null, '2018-01-10 14:42:57', null, null, '0', 'caacf61017114120bcf7bf1049b6d4c3', '1');
 INSERT INTO `sys_user` VALUES ('b283ad70-f5d6-11e7-9d3f-b1f35e3e7552', '3', '96e79218965eb72c92a549dd5a330112', '2', null, '', null, null, '2018-01-10 15:20:12', null, null, '0', '1c54e003c1fc4dcd9b087ef8d48abac3', '1');
+
+
+DROP TABLE IF EXISTS `biz_step`;
+CREATE TABLE `biz_step` (
+  `id` varchar(64) NOT NULL COMMENT '编号',
+  `order_step` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '订单流程环节（sys_dict）',
+  `name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '环节名称',
+  `form_config` json DEFAULT NULL COMMENT '表单定义',
+  `sort_no` int(4) DEFAULT NULL COMMENT '排序',
+  `create_date` datetime DEFAULT NULL COMMENT '创建时间',
+  `update_date` datetime DEFAULT NULL COMMENT '更新时间',
+  `remarks` varchar(255) DEFAULT NULL COMMENT '备注信息',
+  `status` char(1) DEFAULT NULL COMMENT '状态 1 正常  0 冻结',
+  `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '0' COMMENT '删除标记',
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='业务环节';
