@@ -102,7 +102,7 @@ util.copy=function (datas) {
 };
 
 util.showDictLabel=function (type,value) {
-    let dicts=localStorage.getItem('dicts');  
+    let dicts=localStorage.getItem('dicts');
     if(dicts){
         dicts=JSON.parse(dicts);
         if(dicts&&dicts[type]&&dicts[type][value]){

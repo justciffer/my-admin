@@ -30,7 +30,9 @@
         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="订单流程环节" prop="order_step">
-                    <Input v-model="formValidate.order_step"></Input>
+                    <Select style="width:200px" v-model="formValidate.order_step">
+                        <Option v-for="item in order_step_dict"    :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                    </Select>
                 </FormItem>
                 <FormItem label="环节名称" prop="name">
                     <Input v-model="formValidate.name"></Input>
@@ -45,7 +47,9 @@
                     <Input v-model="formValidate.remarks"></Input>
                 </FormItem>
                 <FormItem label="状态" prop="status">
-                    <Input v-model="formValidate.status"></Input>
+                    <Select style="width:200px" v-model="formValidate.status" > <!--@on-change='change'-->
+                        <Option v-for="item in status_dict"  :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                    </Select>
                 </FormItem>
             </Form>
             <div slot="footer">
@@ -56,7 +60,7 @@
         <Modal  title="详情" v-model="modalDetail"  >
             <Form :model="formValidate" :label-width="80">
                 <FormItem label="订单流程环节">
-                    <Input v-model="formValidate.order_step" readonly></Input>
+                    <Input  :value="convertDict('order_step',formValidate.order_step)"  readonly></Input>
                 </FormItem>
                 <FormItem label="环节名称">
                     <Input v-model="formValidate.name" readonly></Input>
@@ -71,7 +75,7 @@
                     <Input v-model="formValidate.remarks" readonly></Input>
                 </FormItem>
                 <FormItem label="状态">
-                    <Input v-model="formValidate.status" readonly></Input>
+                    <Input  :value="convertDict('status_type',formValidate.status)"  readonly></Input>
                 </FormItem>
             </Form>
             <div slot="footer">
@@ -89,6 +93,8 @@
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
+                status_dict:{},
+                order_step_dict:{},
                 searchForm:{
                     current:1
                 },
@@ -131,6 +137,9 @@
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
+                        render: (h, params) => {
+                            return  h('span', util.showDictLabel('status_type',params.row.status));
+                        }
                     },
                     {
                         title: '操作',
@@ -226,6 +235,9 @@
                     _self.loading=false;
                 });
             },
+            convertDict(type,value){
+                return util.showDictLabel(type,value);
+            },
             handleSearch(){
                 this.searchForm.current=1;
                 this.init();
@@ -286,6 +298,8 @@
             }
         },
         mounted () {
+            this.status_dict=util.showDictList('status_type');
+            this.order_step_dict=util.showDictList('order_step');
             this.init();
         }
     }
