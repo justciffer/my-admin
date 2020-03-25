@@ -27,19 +27,28 @@
                 </Card>
             </Col>
         </Row>
-        <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd">
+         <can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>
+
+         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="1000">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="订单流程环节" prop="order_step">
                     <Select style="width:200px" v-model="formValidate.order_step">
-                        <Option v-for="item in order_step_dict"    :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                        <Option v-for="item in order_step_dict"   :value="item.value" :key="item.value" >{{ item.label }}</Option>
                     </Select>
                 </FormItem>
                 <FormItem label="环节名称" prop="name">
                     <Input v-model="formValidate.name"></Input>
                 </FormItem>
+
                 <FormItem label="表单定义" prop="form_config">
-                    <Input v-model="formValidate.form_config"></Input>
+                    <div class="edittable-table-height-con">
+                        <!--<can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>-->
+                    </div>
                 </FormItem>
+
+             <!--   <FormItem label="表单定义" prop="form_config">
+                    <Input v-model="formValidate.form_config"></Input>
+                </FormItem>-->
                 <FormItem label="排序" prop="sort_no">
                     <Input v-model="formValidate.sort_no"></Input>
                 </FormItem>
@@ -84,10 +93,50 @@
     </div>
 </template>
 <script>
+
+    import canEditTable from '@/views/demo/tables/components/canEditTable.vue';
     import util from '@/libs/util.js';
+
     export default {
+        components: {
+            canEditTable
+        },
         data () {
             return {
+                editInlineColumns: [
+                    {
+                        title: '序号',
+                        type: 'index',
+                        width: 80,
+                        align: 'center'
+                    },
+                    {
+                        title: '姓名',
+                        align: 'center',
+                        key: 'name',
+                        width: 90,
+                        editable: true
+                    },
+                    {
+                        title: '性别',
+                        align: 'center',
+                        key: 'sex'
+                    },
+                    {
+                        title: '岗位',
+                        align: 'center',
+                        key: 'work',
+                        width: 150,
+                        editable: true
+                    },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        width: 190,
+                        key: 'handle',
+                        handle: ['edit', 'delete']
+                    }
+                ],
                 modalAdd:false,
                 modalDetail:false,
                 loading:false,
@@ -102,7 +151,7 @@
                 formValidate: {
                 },
                 count:0,
-                columns: [     
+                columns: [
                     {
                         title: '环节名称',
                         key: 'name',
@@ -111,11 +160,14 @@
                         align: 'center',
                     },
                     {
-                        title: '排序',
-                        key: 'sort_no',
+                        title: '订单环节',
+                        key: 'order_step',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
+                        render: (h, params) => {
+                            return  h('span', util.showDictLabel('order_step',params.row.order_step));
+                        }
                     },
                     {
                         title: '创建时间',
@@ -234,6 +286,58 @@
                     _self.count=datas.count;
                     _self.loading=false;
                 });
+
+                this.editInlineColumns= [
+                    {
+                        title: '序号',
+                        type: 'index',
+                        width: 80,
+                        align: 'center'
+                    },
+                    {
+                        title: '姓名',
+                        align: 'center',
+                        key: 'name',
+                        width: 90,
+                        editable: true
+                    },
+                    {
+                        title: '性别',
+                        align: 'center',
+                        key: 'sex'
+                    },
+                    {
+                        title: '岗位',
+                        align: 'center',
+                        key: 'work',
+                        width: 150,
+                        editable: true
+                    },
+                    {
+                        title: '操作',
+                        align: 'center',
+                        width: 190,
+                        key: 'handle',
+                        handle: ['edit', 'delete']
+                    }
+                ];
+//                this.formValidate.form_config_data = [
+//                    {
+//                        name: 'Aresn',
+//                        sex: '男',
+//                        work: '前端开发'
+//                    },
+//                    {
+//                        name: 'Lison',
+//                        sex: '男',
+//                        work: '前端开发'
+//                    },
+//                    {
+//                        name: 'lisa',
+//                        sex: '女',
+//                        work: '程序员鼓励师'
+//                    }
+//                ];
             },
             convertDict(type,value){
                 return util.showDictLabel(type,value);
@@ -247,8 +351,8 @@
                 this.init();
             },
             add (){     
-                this.formValidate={}; 
-                this.modalAdd=true;       
+                this.formValidate={};
+                this.modalAdd=true;
             },
             show (param) {
                 this.formValidate=util.copy(param.row);
@@ -256,7 +360,25 @@
              },
             edit (param) {
                 this.formValidate=util.copy(param.row);
-                this.modalAdd=true;        
+                this.formValidate.form_config_data = [
+                    {
+                        name: 'Aresn',
+                        sex: '男',
+                        work: '前端开发'
+                    },
+                    {
+                        name: 'Lison',
+                        sex: '男',
+                        work: '前端开发'
+                    },
+                    {
+                        name: 'lisa',
+                        sex: '女',
+                        work: '程序员鼓励师'
+                    }
+                ];
+
+                this.modalAdd=true;
              },
             remove (param) {
                 let _self=this;

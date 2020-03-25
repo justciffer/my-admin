@@ -162,7 +162,12 @@ export default {
     },
     methods: {
         init () {
+            console.log("表格加载");
+
             let vm = this;
+            console.log(vm);
+            console.log("表格加载 OVER");
+
             let editableCell = this.columnsList.filter(item => {
                 if (item.editable) {
                     if (item.editable === true) {
@@ -170,7 +175,8 @@ export default {
                     }
                 }
             });
-            let cloneData = JSON.parse(JSON.stringify(this.value));
+
+            let cloneData = this.value ? JSON.parse(JSON.stringify(this.value)) : [];
             let res = [];
             res = cloneData.map((item, index) => {
                 let isEditting = false;
@@ -185,6 +191,7 @@ export default {
                         }
                     }
                 }
+
                 if (isEditting) {
                     return this.thisTableData[index];
                 } else {
@@ -199,6 +206,7 @@ export default {
             });
             this.thisTableData = res;
             this.edittingStore = JSON.parse(JSON.stringify(this.thisTableData));
+
             this.columnsList.forEach(item => {
                 if (item.editable) {
                     item.render = (h, param) => {
