@@ -27,7 +27,6 @@
                 </Card>
             </Col>
         </Row>
-         <can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>
 
          <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="1000">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
@@ -42,7 +41,7 @@
 
                 <FormItem label="表单定义" prop="form_config">
                     <div class="edittable-table-height-con">
-                        <!--<can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>-->
+                        <can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>
                     </div>
                 </FormItem>
 
@@ -65,7 +64,7 @@
                 <Button type="text" @click="addCanFun" v-show="modalCanBut">取消</Button>
                 <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
             </div>
-        </Modal>    
+        </Modal>
         <Modal  title="详情" v-model="modalDetail"  >
             <Form :model="formValidate" :label-width="80">
                 <FormItem label="订单流程环节">
@@ -89,7 +88,7 @@
             </Form>
             <div slot="footer">
             </div>
-        </Modal>    
+        </Modal>
     </div>
 </template>
 <script>
@@ -281,63 +280,11 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                util.post(this,'biz/biz_step/pageData',this.searchForm,function(datas){   
+                util.post(this,'biz/biz_step/pageData',this.searchForm,function(datas){
                     _self.data=datas.data;
                     _self.count=datas.count;
                     _self.loading=false;
                 });
-
-                this.editInlineColumns= [
-                    {
-                        title: '序号',
-                        type: 'index',
-                        width: 80,
-                        align: 'center'
-                    },
-                    {
-                        title: '姓名',
-                        align: 'center',
-                        key: 'name',
-                        width: 90,
-                        editable: true
-                    },
-                    {
-                        title: '性别',
-                        align: 'center',
-                        key: 'sex'
-                    },
-                    {
-                        title: '岗位',
-                        align: 'center',
-                        key: 'work',
-                        width: 150,
-                        editable: true
-                    },
-                    {
-                        title: '操作',
-                        align: 'center',
-                        width: 190,
-                        key: 'handle',
-                        handle: ['edit', 'delete']
-                    }
-                ];
-//                this.formValidate.form_config_data = [
-//                    {
-//                        name: 'Aresn',
-//                        sex: '男',
-//                        work: '前端开发'
-//                    },
-//                    {
-//                        name: 'Lison',
-//                        sex: '男',
-//                        work: '前端开发'
-//                    },
-//                    {
-//                        name: 'lisa',
-//                        sex: '女',
-//                        work: '程序员鼓励师'
-//                    }
-//                ];
             },
             convertDict(type,value){
                 return util.showDictLabel(type,value);
@@ -350,16 +297,17 @@
                 this.searchForm.current=current;
                 this.init();
             },
-            add (){     
+            add (){
                 this.formValidate={};
                 this.modalAdd=true;
             },
             show (param) {
                 this.formValidate=util.copy(param.row);
-                this.modalDetail=true;        
+                this.modalDetail=true;
              },
             edit (param) {
                 this.formValidate=util.copy(param.row);
+
                 this.formValidate.form_config_data = [
                     {
                         name: 'Aresn',
@@ -383,9 +331,9 @@
             remove (param) {
                 let _self=this;
                 this.loading=true;
-                util.post(this,'biz/biz_step/delData',{id:param.row.id},function(datas){ 
+                util.post(this,'biz/biz_step/delData',{id:param.row.id},function(datas){
                     _self.data.splice(param.index, 1);
-                    _self.loading =false;      
+                    _self.loading =false;
                     _self.$Message.success('删除成功！');
                 });
             },
@@ -394,29 +342,29 @@
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
-                        let _data=util.copy(this.formValidate); 
+                        let _data=util.copy(this.formValidate);
                         if(this.formValidate&&this.formValidate.id){
-                            util.post(this,'biz/biz_step/updateData',_data,function(datas){  
+                            util.post(this,'biz/biz_step/updateData',_data,function(datas){
                                 _self.$Message.success('编辑成功！');
                                 _self.addCanFun();
-                                _self.init();      
-                            });                        
+                                _self.init();
+                            });
                         }else{
-                            util.post(this,'biz/biz_step/addData',_data,function(datas){ 
+                            util.post(this,'biz/biz_step/addData',_data,function(datas){
                                 _self.$Message.success('新增成功！');
-                                _self.addCanFun(); 
-                                _self.init();     
-                            });     
+                                _self.addCanFun();
+                                _self.init();
+                            });
                         }
                     }else{
                         util.changeModalLoading(this);
-                    } 
-                })  
-            },   
-            addCanFun(){ 
-                this.modalAdd=false; 
+                    }
+                })
+            },
+            addCanFun(){
+                this.modalAdd=false;
                 util.changeModalLoading(this);
-                this.$refs['formRef'].resetFields(); 
+                this.$refs['formRef'].resetFields();
             }
         },
         mounted () {

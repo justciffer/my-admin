@@ -162,11 +162,7 @@ export default {
     },
     methods: {
         init () {
-            console.log("表格加载");
-
             let vm = this;
-            console.log(vm);
-            console.log("表格加载 OVER");
 
             let editableCell = this.columnsList.filter(item => {
                 if (item.editable) {
@@ -289,6 +285,10 @@ export default {
     },
     watch: {
         value (data) {
+            this.init();
+        },
+
+        columnsList(){
             this.init();
         }
     }
