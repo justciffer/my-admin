@@ -284,9 +284,29 @@ export default {
         }
     },
     watch: {
-        value (data) {
-            this.init();
+
+        value: {
+            handler () {
+                console.log("data changed");
+                this.init();
+            },
+            deep: true,
+            immediate: true,
         },
+        //
+        // thisTableData: {
+        //     handler () {
+        //         console.log("thisTableData changed");
+        //         // this.init();
+        //     },
+        //     deep: true,
+        //     immediate: true,
+        // },
+
+        // value (data) {
+        //     console.log("data changed");
+        //     this.init();
+        // },
 
         columnsList(){
             this.init();

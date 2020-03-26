@@ -28,6 +28,7 @@
             </Col>
         </Row>
 
+
          <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="1000">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="订单流程环节" prop="order_step">
@@ -41,13 +42,9 @@
 
                 <FormItem label="表单定义" prop="form_config">
                     <div class="edittable-table-height-con">
-                        <can-edit-table refs="table2"  v-model="formValidate.form_config_data" :columns-list="editInlineColumns"></can-edit-table>
+                        <can-edit-table refs="table2" v-model="form_config_data" :columns-list="editInlineColumns"></can-edit-table>
                     </div>
                 </FormItem>
-
-             <!--   <FormItem label="表单定义" prop="form_config">
-                    <Input v-model="formValidate.form_config"></Input>
-                </FormItem>-->
                 <FormItem label="排序" prop="sort_no">
                     <Input v-model="formValidate.sort_no"></Input>
                 </FormItem>
@@ -136,6 +133,7 @@
                         handle: ['edit', 'delete']
                     }
                 ],
+                form_config_data:[],
                 modalAdd:false,
                 modalDetail:false,
                 loading:false,
@@ -308,23 +306,7 @@
             edit (param) {
                 this.formValidate=util.copy(param.row);
 
-                this.formValidate.form_config_data = [
-                    {
-                        name: 'Aresn',
-                        sex: '男',
-                        work: '前端开发'
-                    },
-                    {
-                        name: 'Lison',
-                        sex: '男',
-                        work: '前端开发'
-                    },
-                    {
-                        name: 'lisa',
-                        sex: '女',
-                        work: '程序员鼓励师'
-                    }
-                ];
+                this.form_config_data = this.formValidate.form_config ? JSON.parse(this.formValidate.form_config) : [];
 
                 this.modalAdd=true;
              },
@@ -339,6 +321,9 @@
             },
             addOkFun(){
                 let _self=this;
+
+                this.formValidate.form_config= JSON.stringify(this.form_config_data);
+
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
