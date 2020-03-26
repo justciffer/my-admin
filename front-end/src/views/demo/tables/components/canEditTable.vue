@@ -13,7 +13,8 @@ const editButton = (vm, h, currentRow, index) => {
     return h('Button', {
         props: {
             type: currentRow.editting ? 'success' : 'primary',
-            loading: currentRow.saving
+            loading: currentRow.saving,
+            size: 'small'
         },
         style: {
             margin: '0 5px'
@@ -43,6 +44,45 @@ const editButton = (vm, h, currentRow, index) => {
         }
     }, currentRow.editting ? '保存' : '编辑');
 };
+
+const addButton = (vm, h, currentRow, index) => {
+    return h('Button', {
+        props: {
+            type:'success',
+            size: 'small'
+        },
+        style: {
+            margin: '0 5px'
+        },
+        on: {
+            'click': () => {
+                vm.thisTableData.splice(index+1 , 0,{});
+                vm.$emit('input', vm.handleBackdata(vm.thisTableData));
+                vm.$emit('on-change', vm.handleBackdata(vm.thisTableData), index);
+
+//                if (!currentRow.editting) {
+//                    if (currentRow.edittingCell) {
+//                        for (let name in currentRow.edittingCell) {
+//                            currentRow.edittingCell[name] = false;
+//                            vm.edittingStore[index].edittingCell[name] = false;
+//                        }
+//                    }
+//                    vm.edittingStore[index].editting = true;
+//                    vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
+//                } else {
+//                    vm.edittingStore[index].saving = true;
+//                    vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
+//                    let edittingRow = vm.edittingStore[index];
+//                    edittingRow.editting = false;
+//                    edittingRow.saving = false;
+//                    vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
+//                    vm.$emit('input', vm.handleBackdata(vm.thisTableData));
+//                }
+            }
+        }
+    }, '新增');
+};
+
 const deleteButton = (vm, h, currentRow, index) => {
     return h('Poptip', {
         props: {
@@ -64,7 +104,8 @@ const deleteButton = (vm, h, currentRow, index) => {
             },
             props: {
                 type: 'error',
-                placement: 'top'
+                placement: 'top',
+                size: 'small'
             }
         }, '删除')
     ]);
@@ -145,6 +186,10 @@ export default {
             type: Boolean,
             default: false
         },
+        addBtn: {
+            type: Boolean,
+            default: true
+        },
         hoverShow: {
             type: Boolean,
             default: false
@@ -173,6 +218,10 @@ export default {
             });
 
             let cloneData = this.value ? JSON.parse(JSON.stringify(this.value)) : [];
+
+            if(cloneData.length == 0 ){
+                cloneData.push({});
+            }
             let res = [];
             res = cloneData.map((item, index) => {
                 let isEditting = false;
@@ -256,16 +305,20 @@ export default {
                         if (item.handle.length === 2) {
                             return h('div', [
                                 editButton(this, h, currentRowData, param.index),
-                                deleteButton(this, h, currentRowData, param.index)
+                                deleteButton(this, h, currentRowData, param.index),
+                                addButton(this, h, currentRowData, param.index)
+
                             ]);
                         } else if (item.handle.length === 1) {
                             if (item.handle[0] === 'edit') {
                                 return h('div', [
-                                    editButton(this, h, currentRowData, param.index)
+                                    editButton(this, h, currentRowData, param.index),
+                                    addButton(this, h, currentRowData, param.index)
                                 ]);
                             } else {
                                 return h('div', [
-                                    deleteButton(this, h, currentRowData, param.index)
+                                    deleteButton(this, h, currentRowData, param.index),
+                                    addButton(this, h, currentRowData, param.index)
                                 ]);
                             }
                         }

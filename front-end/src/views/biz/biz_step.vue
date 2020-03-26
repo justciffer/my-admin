@@ -29,7 +29,7 @@
         </Row>
 
 
-         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="1000">
+         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="800">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="订单流程环节" prop="order_step">
                     <Select style="width:200px" v-model="formValidate.order_step">
@@ -40,7 +40,7 @@
                     <Input v-model="formValidate.name"></Input>
                 </FormItem>
 
-                <FormItem label="表单定义" prop="form_config">
+                <FormItem label="表单定义"><!-- prop="form_config"-->
                     <div class="edittable-table-height-con">
                         <can-edit-table refs="table2" v-model="form_config_data" :columns-list="editInlineColumns"></can-edit-table>
                     </div>
@@ -52,7 +52,7 @@
                     <Input v-model="formValidate.remarks"></Input>
                 </FormItem>
                 <FormItem label="状态" prop="status">
-                    <Select style="width:200px" v-model="formValidate.status" > <!--@on-change='change'-->
+                    <Select style="width:200px" v-model="formValidate.status" >
                         <Option v-for="item in status_dict"  :value="item.value" :key="item.value" >{{ item.label }}</Option>
                     </Select>
                 </FormItem>
@@ -64,7 +64,7 @@
         </Modal>
         <Modal  title="详情" v-model="modalDetail"  >
             <Form :model="formValidate" :label-width="80">
-                <FormItem label="订单流程环节">
+                <FormItem label="订单环节">
                     <Input  :value="convertDict('order_step',formValidate.order_step)"  readonly></Input>
                 </FormItem>
                 <FormItem label="环节名称">
@@ -103,32 +103,41 @@
                     {
                         title: '序号',
                         type: 'index',
-                        width: 80,
+                        width: 60,
                         align: 'center'
                     },
                     {
-                        title: '姓名',
+                        title: '名称',
                         align: 'center',
                         key: 'name',
                         width: 90,
                         editable: true
                     },
                     {
-                        title: '性别',
+                        title: '属性',
                         align: 'center',
-                        key: 'sex'
+                        key: 'key',
+                        width: 80,
+                        editable: true
                     },
                     {
-                        title: '岗位',
+                        title: '类型',
                         align: 'center',
-                        key: 'work',
-                        width: 150,
+                        key: 'type',
+                        width: 100,
+                        editable: true
+                    },
+                    {
+                        title: '扩展',
+                        align: 'center',
+                        key: 'type',
+                        width: 100,
                         editable: true
                     },
                     {
                         title: '操作',
                         align: 'center',
-                        width: 190,
+                        width: 220,
                         key: 'handle',
                         handle: ['edit', 'delete']
                     }
