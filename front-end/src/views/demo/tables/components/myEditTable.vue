@@ -9,6 +9,8 @@
 </template>
 
 <script>
+import util from '@/libs/util.js';
+
 const editButton = (vm, h, currentRow, index) => {
     return h('Button', {
         props: {
@@ -91,96 +93,25 @@ const deleteButton = (vm, h, currentRow, index) => {
         }, '删除')
     ]);
 };
-const incellEditBtn = (vm, h, param) => {
-    if (vm.hoverShow) {
-        return h('div', {
-            'class': {
-                'show-edit-btn': vm.hoverShow
-            }
-        }, [
-            h('Button', {
-                props: {
-                    type: 'text',
-                    icon: 'edit'
-                },
-                on: {
-                    click: (event) => {
-                        vm.edittingStore[param.index].edittingCell[param.column.key] = true;
-                        vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
-                    }
-                }
-            })
-        ]);
-    } else {
-        return h('Button', {
-            props: {
-                type: 'text',
-                icon: 'edit'
-            },
-            on: {
-                click: (event) => {
-                    vm.edittingStore[param.index].edittingCell[param.column.key] = true;
-                    vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
-                }
-            }
-        });
-    }
-};
-const saveIncellEditBtn = (vm, h, param) => {
-    return h('Button', {
-        props: {
-            type: 'text',
-            icon: 'checkmark'
-        },
-        on: {
-            click: (event) => {
-                vm.edittingStore[param.index].edittingCell[param.column.key] = false;
-                vm.thisTableData = JSON.parse(JSON.stringify(vm.edittingStore));
-                vm.$emit('input', vm.handleBackdata(vm.thisTableData));
-                vm.$emit('on-cell-change', vm.handleBackdata(vm.thisTableData), param.index, param.column.key);
-            }
-        }
-    });
-};
-const cellInput = (vm, h, param, item) => {
-    return h('Input', {
-        props: {
-            type: 'text',
-            value: vm.edittingStore[param.index][item.key]
-        },
-        on: {
-            'on-change' (event) {
-                let key = item.key;
-                vm.edittingStore[param.index][key] = event.target.value;
-            }
-        }
-    });
-};
+
 export default {
-    name: 'canEditTable',
+    name: 'myEditTable',
     props: {
         refs: String,
         columnsList: Array,
         value: Array,
         url: String,
-        editIncell: {
-            type: Boolean,
-            default: false
-        },
         addBtn: {
             type: Boolean,
-            default: false
-        },
-        hoverShow: {
-            type: Boolean,
-            default: false
+            default: true
         }
     },
     data () {
         return {
             columns: [],
             thisTableData: [],
-            edittingStore: []
+            edittingStore: [],
+            dicts:{}
         };
     },
     created () {
@@ -193,6 +124,9 @@ export default {
             let editableCell = this.columnsList.filter(item => {
                 if (item.editable) {
                     if (item.editable === true) {
+                        if(item.select_cfg && !this.dicts[item.select_cfg]){
+                            this.dicts[item.select_cfg]=util.showDictList( item.select_cfg);
+                        }
                         return item;
                     }
                 }
@@ -238,45 +172,44 @@ export default {
                     item.render = (h, param) => {
                         let currentRow = this.thisTableData[param.index];
                         if (!currentRow.editting) {
-                            if (this.editIncell) {
-                                return h('Row', {
-                                    props: {
-                                        type: 'flex',
-                                        align: 'middle',
-                                        justify: 'center'
-                                    }
-                                }, [
-                                    h('Col', {
-                                        props: {
-                                            span: '22'
-                                        }
-                                    }, [
-                                        !currentRow.edittingCell[param.column.key] ? h('span', currentRow[item.key]) : cellInput(this, h, param, item)
-                                    ]),
-                                    h('Col', {
-                                        props: {
-                                            span: '2'
-                                        }
-                                    }, [
-                                        currentRow.edittingCell[param.column.key] ? saveIncellEditBtn(this, h, param) : incellEditBtn(this, h, param)
-                                    ])
-                                ]);
-                            } else {
-                                return h('span', currentRow[item.key]);
-                            }
+                            let _v = currentRow[item.key];
+                            let v = item.select_cfg &&_v  ? util.showDictLabel(item.select_cfg,_v) :_v ;
+                            return h('span', v );
                         } else {
-                            return h('Input', {
-                                props: {
-                                    type: 'text',
-                                    value: currentRow[item.key]
-                                },
-                                on: {
-                                    'on-change' (event) {
-                                        let key = param.column.key;
-                                        vm.edittingStore[param.index][key] = event.target.value;
+                            if(item.select_cfg && this.dicts[item.select_cfg] ){
+                                return h('Select', {
+                                    props: {
+                                        value: currentRow[item.key], // 获取选择的下拉框的值
+                                        size: 'small'
+                                    },
+                                    on: {
+                                        'on-change': e => {
+                                            let key = param.column.key;
+                                            vm.edittingStore[param.index][key] = e;
+                                        }
                                     }
-                                }
-                            });
+                                }, this.dicts[item.select_cfg] .map((item) => { // this.productTypeList下拉框里的data
+                                    return h('Option', { // 下拉框的值
+                                        props: {
+                                            value: item.value,
+                                            label: item.label
+                                        }
+                                    })
+                                }))
+                            }else{
+                                return h('Input', {
+                                    props: {
+                                        type: 'text',
+                                        value: currentRow[item.key]
+                                    },
+                                    on: {
+                                        'on-change' (event) {
+                                            let key = param.column.key;
+                                            vm.edittingStore[param.index][key] = event.target.value;
+                                        }
+                                    }
+                                });
+                            }
                         }
                     };
                 }
@@ -288,7 +221,6 @@ export default {
                                 editButton(this, h, currentRowData, param.index),
                                 deleteButton(this, h, currentRowData, param.index),
                                 addButton(this, h, currentRowData, param.index)
-
                             ]);
                         } else if (item.handle.length === 1) {
                             if (item.handle[0] === 'edit') {
@@ -327,21 +259,6 @@ export default {
             deep: true,
             immediate: true,
         },
-        //
-        // thisTableData: {
-        //     handler () {
-        //         console.log("thisTableData changed");
-        //         // this.init();
-        //     },
-        //     deep: true,
-        //     immediate: true,
-        // },
-
-        // value (data) {
-        //     console.log("data changed");
-        //     this.init();
-        // },
-
         columnsList(){
             this.init();
         }

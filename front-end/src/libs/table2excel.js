@@ -18,6 +18,7 @@ function getExplorer () {
         return 'Safari';
     };
 };
+
 function tranform (table, aId, name) {
     let tableHead = table.$children[0].$el;
     let tableBody = table.$children[1].$el;

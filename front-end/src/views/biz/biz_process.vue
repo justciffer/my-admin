@@ -11,10 +11,10 @@
                 <Card>
                     <p slot="title">
                         <Icon type="ios-list"></Icon>
-                        业务环节列表
+                        业务流程列表
                     </p>
                     <Row>
-                        环节名称：<Input v-model="searchForm.name" placeholder="请输入要搜索的环节名称" style="width: 200px;margin-right: 20px;" />
+                        流程名称：<Input v-model="searchForm.name" placeholder="请输入要搜索的流程名称" style="width: 200px;margin-right: 20px;" />
                         <span @click="handleSearch"><Button type="primary" icon="search">搜索</Button></span>
                     </Row>
                     <Row style="margin-top:10px;">
@@ -27,28 +27,18 @@
                 </Card>
             </Col>
         </Row>
-
-
-         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="800">
+        <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="600">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
-                <FormItem label="订单环节" prop="order_step">
-                    <Select style="width:200px" v-model="formValidate.order_step">
-                        <Option v-for="item in order_step_dict"   :value="item.value" :key="item.value" >{{ item.label }}</Option>
-                    </Select>
-                </FormItem>
-                <FormItem label="环节名称" prop="name">
+                <FormItem label="流程名称" prop="name">
                     <Input v-model="formValidate.name"></Input>
                 </FormItem>
-
-                <FormItem label="表单定义"><!-- prop="form_config"-->
-                    <div class="edittable-table-height-con">
-                        <my-edit-table refs="table2" v-model="form_config_data" :columns-list="editInlineColumns"></my-edit-table>
-                    </div>
+                <!--todo: 修改选择方式  https://www.iviewui.com/components/transfer-->
+                <FormItem label="环节定义"> <!-- prop="step_config" 去除校验-->
+                    <Transfer
+                            :data="stepList" :titles="['所有环节','选中环节']"
+                            :target-keys="step_config_data"   :render-format="renderStep"   @on-change="handleChangeStep"  ></Transfer>
                 </FormItem>
-                <FormItem label="排序" prop="sort_no">
-                    <Input v-model="formValidate.sort_no"></Input>
-                </FormItem>
-                <FormItem label="备注信息" prop="remarks">
+                <FormItem label="备注" prop="remarks">
                     <Input v-model="formValidate.remarks"></Input>
                 </FormItem>
                 <FormItem label="状态" prop="status">
@@ -62,24 +52,15 @@
                 <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
             </div>
         </Modal>
-        <Modal  title="详情" v-model="modalDetail"  width="800" >
+        <Modal  title="详情" v-model="modalDetail" width="600">
             <Form :model="formValidate" :label-width="80">
-                <FormItem label="订单环节">
-                    <Input  :value="convertDict('order_step',formValidate.order_step)"  readonly></Input>
-                </FormItem>
-                <FormItem label="环节名称">
+                <FormItem label="流程名称">
                     <Input v-model="formValidate.name" readonly></Input>
                 </FormItem>
-                <FormItem label="表单定义">
-                    <div class="edittable-table-height-con">
-                        <my-edit-table  readMode="true" v-model="form_config_data" :columns-list="readInlineColumns"></my-edit-table>
-                    </div>
-                    <!--<Input v-model="formValidate.form_config" readonly></Input>-->
+                <FormItem label="环节定义">
+                    <Table height="200" border stripe  size="small" :columns="show_step_cols" :data="show_step_data"></Table>
                 </FormItem>
-                <FormItem label="排序">
-                    <Input v-model="formValidate.sort_no" readonly></Input>
-                </FormItem>
-                <FormItem label="备注信息">
+                <FormItem label="备注">
                     <Input v-model="formValidate.remarks" readonly></Input>
                 </FormItem>
                 <FormItem label="状态">
@@ -92,127 +73,59 @@
     </div>
 </template>
 <script>
-
-    import myEditTable from '@/views/demo/tables/components/myEditTable.vue';
     import util from '@/libs/util.js';
-
     export default {
-        components: {
-            myEditTable
-        },
         data () {
-            return{
-                readInlineColumns:[
-                    {
-                        title: '序号',
-                        type: 'index',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: '名称',
-                        align: 'center',
-                        key: 'name',
-                        width: 180,
-                        editable: true
-                    },
-                    {
-                        title: '属性',
-                        align: 'center',
-                        key: 'key',
-                        width: 180,
-                        editable: true
-                    },
-                    {
-                        title: '类型',
-                        align: 'center',
-                        key: 'type',
-                        width: 180,
-                        editable: true,
-                        select_cfg: 'field_type'
-                    }
-                ],
-                editInlineColumns: [
-                    {
-                        title: '序号',
-                        type: 'index',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: '名称',
-                        align: 'center',
-                        key: 'name',
-                        width: 120,
-                        editable: true
-                    },
-                    {
-                        title: '属性',
-                        align: 'center',
-                        key: 'key',
-                        width: 120,
-                        editable: true
-                    },
-                    {
-                        title: '类型',
-                        align: 'center',
-                        key: 'type',
-                        width: 120,
-                        editable: true,
-                        select_cfg: 'field_type'
-                    },
-                    {
-                        title: '操作',
-                        align: 'center',
-                        width: 220,
-                        key: 'handle',
-                        handle: ['edit', 'delete']
-                    }
-                ],
-                form_config_data:[],
+            return {
                 modalAdd:false,
                 modalDetail:false,
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
                 status_dict:{},
-                order_step_dict:{},
-                field_type_dict:{},
+                stepList:[],
+                show_step_data:[],
+                show_step_cols:[
+                    {
+                        title: '顺序',
+                        type: 'index',
+                        width: 60,
+                        align: 'center'
+                    },
+                    {
+                        title: '环节名称',
+                        key: 'label',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        width: 150,
+                        align: 'center',
+                    },
+                    {
+                        title: '描述',
+                        key: 'description',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        align: 'center',
+                    }],
                 searchForm:{
                     current:1
                 },
                 data: [],
                 formValidate: {
                 },
+                step_config_data:[],
                 count:0,
                 columns: [
                     {
-                        title: '环节名称',
+                        title: '流程名称',
                         key: 'name',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
                     },
                     {
-                        title: '订单环节',
-                        key: 'order_step',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                        render: (h, params) => {
-                            return  h('span', util.showDictLabel('order_step',params.row.order_step));
-                        }
-                    },
-                    {
                         title: '创建时间',
                         key: 'create_date',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                    },
-                    {
-                        title: '备注信息',
-                        key: 'remarks',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
@@ -290,23 +203,17 @@
                     }
                 ],
                 ruleValidate: {
-                    order_step: [
-                        { required: true, message: '订单流程环节为必填项'}
-                    ],
                     name: [
-                        { required: true, message: '环节名称为必填项'}
-                    ],
-                    form_config: [
-                        { required: true, message: '表单定义为必填项'}
-                    ],
-                    sort_no: [
-                        { required: true, message: '排序为必填项'}
+                        { required: true, message: '流程名称为必填项'}
                     ],
                     remarks: [
-                        { required: true, message: '备注信息为必填项'}
+                        { required: true, message: '备注为必填项'}
                     ],
                     status: [
                         { required: true, message: '状态为必填项'}
+                    ],
+                    step_config: [
+                        { required: true, message: '环节定义为必填项'}
                     ],
                 }
             }
@@ -315,11 +222,23 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                util.post(this,'biz/biz_step/pageData',this.searchForm,function(datas){
+                util.post(this,'biz/biz_process/pageData',this.searchForm,function(datas){
                     _self.data=datas.data;
                     _self.count=datas.count;
                     _self.loading=false;
                 });
+                util.post(this,'biz/biz_step/allData',{},function(datas){
+
+                    datas.forEach(item=>{
+                        _self.stepList.push({key:item.id,label:item.name,description:item.remarks});
+                    });
+                });
+            },
+            renderStep (item) {
+                return item.label ;//+ ' - ' + item.description;
+            },
+            handleChangeStep (newTargetKeys) {
+                this.step_config_data = newTargetKeys;
             },
             convertDict(type,value){
                 return util.showDictLabel(type,value);
@@ -334,23 +253,33 @@
             },
             add (){
                 this.formValidate={};
-                this.form_config_data=[];
+                this.step_config_data = [];
                 this.modalAdd=true;
             },
             show (param) {
                 this.formValidate=util.copy(param.row);
-                this.form_config_data = this.formValidate.form_config ? JSON.parse(this.formValidate.form_config) : [];
+                this.show_step_data = [];
+                let _data = this.formValidate.step_config ? JSON.parse(this.formValidate.step_config) : [];
+                _data.forEach(item =>{
+                    this.stepList.forEach(_step =>{
+                        if(_step.key == item){
+                            this.show_step_data.push(_step);
+                        }
+                    });
+                });
+
+
                 this.modalDetail=true;
              },
             edit (param) {
                 this.formValidate=util.copy(param.row);
-                this.form_config_data = this.formValidate.form_config ? JSON.parse(this.formValidate.form_config) : [];
+                this.step_config_data = this.formValidate.step_config ? JSON.parse(this.formValidate.step_config) : [];
                 this.modalAdd=true;
              },
             remove (param) {
                 let _self=this;
                 this.loading=true;
-                util.post(this,'biz/biz_step/delData',{id:param.row.id},function(datas){
+                util.post(this,'biz/biz_process/delData',{id:param.row.id},function(datas){
                     _self.data.splice(param.index, 1);
                     _self.loading =false;
                     _self.$Message.success('删除成功！');
@@ -358,25 +287,20 @@
             },
             addOkFun(){
                 let _self=this;
-
-                this.formValidate.form_config= JSON.stringify( this.form_config_data.filter(item => {
-                    if (Object.keys(item).length > 0) {
-                        return item;
-                    }
-                }));
+                this.formValidate.step_config = JSON.stringify( this.step_config_data);
 
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
                         let _data=util.copy(this.formValidate);
                         if(this.formValidate&&this.formValidate.id){
-                            util.post(this,'biz/biz_step/updateData',_data,function(datas){
+                            util.post(this,'biz/biz_process/updateData',_data,function(datas){
                                 _self.$Message.success('编辑成功！');
                                 _self.addCanFun();
                                 _self.init();
                             });
                         }else{
-                            util.post(this,'biz/biz_step/addData',_data,function(datas){
+                            util.post(this,'biz/biz_process/addData',_data,function(datas){
                                 _self.$Message.success('新增成功！');
                                 _self.addCanFun();
                                 _self.init();
@@ -395,8 +319,6 @@
         },
         mounted () {
             this.status_dict=util.showDictList('status_type');
-            this.order_step_dict=util.showDictList('order_step');
-            this.field_type_dict=util.showDictList('field_type');
             this.init();
         }
     }
