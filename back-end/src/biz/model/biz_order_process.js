@@ -1,5 +1,5 @@
 /**
-*业务环节
+*订单流程
 */
 'use strict';
 module.exports = class extends think.Model {
@@ -30,8 +30,8 @@ module.exports = class extends think.Model {
 
   async pageData(param){
     let sql=this.page(param.current).where({del_flag:0}).order('create_date desc');
-    if(!think.isEmpty(param.name)){
-      sql=sql.where({name:['like', '%'+param.name+'%']});
+    if(!think.isEmpty(param.status)){
+      sql=sql.where({status:['like', '%'+param.status+'%']});
     }
     let data = await sql.countSelect();
     return data;
@@ -44,9 +44,5 @@ module.exports = class extends think.Model {
 
   async getData(id){
     return await this.where({id: id,del_flag:0}).find();
-  }
-
-  async getDataByIds(ids){
-      return await this.where({id: ['IN',ids],del_flag:0}).select();
   }
 };

@@ -12,6 +12,20 @@ module.exports = class extends Base {
     return this.success(data);
   }
 
+
+  async processDataAction() {
+      let param=this.post();
+      let data=await this.model('biz_process').getData(param.process_id);
+      if(data && !think.isEmpty(data.step_config)){
+
+        let _arr = JSON.parse(data.step_config);
+        if(_arr && _arr.length > 0){
+            data.step_list = await this.model('biz_step').getDataByIds(_arr);
+        }
+      }
+      return this.success(data);
+  }
+
   async pageDataAction() {
     let param=this.post();
     let data=await this.model('biz_process').pageData(param);

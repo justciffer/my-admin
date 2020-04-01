@@ -15,7 +15,9 @@
                     </p>
                     <Row>
                         订单编号：<Input v-model="searchForm.order_no" placeholder="请输入要搜索的订单编号" style="width: 200px;margin-right: 20px;" />
-                        付款状态：<Input v-model="searchForm.pay_status" placeholder="请输入要搜索的付款状态 " style="width: 200px;margin-right: 20px;" />
+                        订单状态：   <Select style="width:200px" v-model="searchForm.status" >
+                                        <Option v-for="item in order_status_dict"  :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                                    </Select>
                         <span @click="handleSearch"><Button type="primary" icon="search">搜索</Button></span>
                     </Row>
                     <Row style="margin-top:10px;">
@@ -103,9 +105,9 @@
                 </Row>
                 <Row>
                     <iCol span="12">
-                    <FormItem label="预计交期" prop="finish_date">
-                        <DatePicker type="date" v-model="formValidate.finish_date"
-                                    @on-change="(datetime) =>{ formValidate.finish_date = datetime;}">
+                    <FormItem label="预计交期" prop="plan_date">
+                        <DatePicker type="date" v-model="formValidate.plan_date"
+                                    @on-change="(datetime) =>{ formValidate.plan_date = datetime;}">
                         </DatePicker>
                     </FormItem>
                     </iCol>
@@ -210,8 +212,8 @@
                 </Row>
                 <Row>
                     <iCol span="12">
-                        <FormItem label="预计交期" prop="finish_date">
-                            <Input  :value="formatDate(formValidate.finish_date)"  readonly></Input>
+                        <FormItem label="预计交期" prop="plan_date">
+                            <Input  :value="formatDate(formValidate.plan_date)"  readonly></Input>
                         </FormItem>
                     </iCol>
                     <iCol span="12">  <!--order_status-->
@@ -243,22 +245,52 @@
             </Form>
             <div slot="footer">
             </div>
-        </Modal>    
+        </Modal>
+
+         <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" >
+             <Form ref="formRef_start" :model="startOrderForm"  :label-width="80">
+                 <FormItem label="订单编号" prop="order_step">
+                     <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
+                 </FormItem>
+                 <FormItem label="订单名称" prop="order_step">
+                     <Input v-model="startOrderForm.order_name" readonly="" style="width:200px"></Input>
+                 </FormItem>
+                 <FormItem label="流程模板" prop="status">
+                     <Select style="width:400px" v-model="startOrderForm.process_id" @on-change="showStep" >
+                         <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + " -- " + item.remarks}}</Option>
+                     </Select>
+                 </FormItem>
+                 <form-group :list="stepFormItems" ></form-group>
+                 <!--todo: 动态表单-->
+             </Form>
+             <div slot="footer">
+                 <Button type="text" @click="startOrderCanFun" v-show="modalCanBut">取消</Button>
+                 <Button type="primary" @click="startOrderOkFun" :loading="modalLoading">确定</Button>
+             </div>
+         </Modal>
     </div>
 </template>
 <script>
     import util from '@/libs/util.js';
+    import formGroup from '@/views/sys/components/form-group.vue';
     export default {
+        components: {
+            formGroup
+        },
         data () {
             return {
                 modalAdd:false,
                 modalDetail:false,
+                showStartOrder:false,
+                stepFormItems:[],
+                startOrderForm:{},
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
                 order_status_dict:{},
                 pay_status_dict:{},
                 pay_type_dict:{},
+                process_list:{},
                 searchForm:{
                     current:1
                 },
@@ -292,13 +324,13 @@
                     },
                     {
                         title: '预计交期',
-                        key: 'finish_date',
+                        key: 'plan_date',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
                         render: function (h, params) {
                             return h('span',
-                                util.formatDate(new Date(params.row.finish_date), 'yyyy-MM-dd'))
+                                util.formatDate(new Date(params.row.plan_date), 'yyyy-MM-dd'))
                         }
                     },
                     {
@@ -410,7 +442,7 @@
                     custom: [
                         { required: true, message: '客户联系人为必填项'}
                     ],
-                    finish_date: [
+                    plan_date: [
                         { required: true, message: '预计交期为必填项'}
                     ],
                     invoice_date: [
@@ -480,8 +512,116 @@
                 this.init();
             },
             startOrder (param) {
+                this.startOrderForm = {};
+                this.startOrderForm.order_id = param.row.id;
+                this.startOrderForm.order_no = param.row.order_no;
+                this.startOrderForm.order_name = param.row.name;
+                this.showStartOrder=true;
+
                 let _self=this;
-                _self.$Message.success('启动订单！');
+                //todo: process_list获取 模板 + 模板对应环节+默认值
+                util.post(this,'biz/biz_process/allData',{},function(datas){
+                    _self.process_list=datas;
+                });
+            },
+            showStep(process_id){
+                if(process_id){
+                    let _self=this;
+                    util.post(this,'biz/biz_process/processData',{process_id:process_id},function(datas){
+                        console.log(datas);
+                        if(datas && datas.step_list){
+                            _self.addStepItem(datas.step_list);
+                        }
+                        _self.$Message.success('启动订单！');
+                    });
+                }else{
+                    //清空
+                }
+
+            },
+            startOrderOkFun (param) {
+                let _self=this;
+                util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
+                    _self.init();
+                    _self.$Message.success('启动订单！');
+                });
+            },
+            startOrderCanFun (param) {
+                this.showStartOrder=false;
+                util.changeModalLoading(this);
+                this.$refs['formRef'].resetFields();
+            },
+            addStepItem(stepList){
+                this.stepFormItems = [];
+                stepList.forEach(item =>{
+                    if(item.form_config){
+                        let _config = JSON.parse(item.form_config);
+                        if(_config && _config.length > 0){
+                            _config.forEach(_c=>{
+                                let  _item={
+                                    name:_c.key,
+                                    type:_c.type? 'i-input':'i-input',
+                                    label:_c.name,
+                                    value:''
+                                };
+                                this.stepFormItems.push(_item);
+                            });
+                            //[{"type":"dict_outsource","key":"com","name":"素烧外协"}]
+                        }
+                    }
+                });
+
+              /*  this.stepForm=[{
+                    name:'name',
+                    type:'i-input',
+                    value:'',
+                    label:'姓名',
+                    rule:[
+                        { required: true, message: 'The name cannot be empty', trigger: 'blur' }
+                    ],
+                },{
+                    name:'range',
+                    type:'slider',
+                    value:[10,40],
+                    range:true,
+                    label:'范围'
+                },{
+                    name:'select',
+                    type:'i-select',
+                    value:'',
+                    label:'性别',
+                    children:{
+                        type:'i-option',
+                        list:[
+                            {value:'man',title:'男'},
+                            {value:'woman',title:'女'},
+                        ]
+                    }
+                },{
+                    name:'education',
+                    type:'radio-group',
+                    value:1,
+                    label:'学历',
+                    children:{
+                        type:'radio',
+                        list:[
+                            {label:'man',title:'男'},
+                            {label:'woman',title:'女'},
+                        ]
+                    }
+                },{
+                    name:'skill',
+                    type:'checkbox-group',
+                    value:[],
+                    label:'技能',
+                    children:{
+                        type:'checkbox',
+                        list:[
+                            {label:'man',title:'大学'},
+                            {label:'woman',title:'高中'},
+                        ]
+                    }
+                }];*/
             },
             add (){     
                 this.formValidate={
@@ -537,7 +677,7 @@
             addCanFun(){ 
                 this.modalAdd=false; 
                 util.changeModalLoading(this);
-                this.$refs['formRef'].resetFields(); 
+                this.$refs['formRef_start'].resetFields();
             }
         },
         mounted () {

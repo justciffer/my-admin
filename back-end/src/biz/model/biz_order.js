@@ -33,8 +33,8 @@ module.exports = class extends think.Model {
     if(!think.isEmpty(param.order_no)){
       sql=sql.where({order_no:['like', '%'+param.order_no+'%']});
     }
-    if(!think.isEmpty(param.pay_status)){
-      sql=sql.where({pay_status:['like', '%'+param.pay_status+'%']});
+    if(!think.isEmpty(param.status)){
+      sql=sql.where({status:['=', param.status]});
     }
     let data = await sql.countSelect();
     return data;

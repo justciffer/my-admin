@@ -11,10 +11,10 @@
                 <Card>
                     <p slot="title">
                         <Icon type="ios-list"></Icon>
-                        业务流程列表
+                        订单流程列表
                     </p>
                     <Row>
-                        流程名称：<Input v-model="searchForm.name" placeholder="请输入要搜索的流程名称" style="width: 200px;margin-right: 20px;" />
+                        状态 0-待处理 1-处理中 2-完成 3-取消：<Input v-model="searchForm.status" placeholder="请输入要搜索的状态 0-待处理 1-处理中 2-完成 3-取消" style="width: 200px;margin-right: 20px;" />
                         <span @click="handleSearch"><Button type="primary" icon="search">搜索</Button></span>
                     </Row>
                     <Row style="margin-top:10px;">
@@ -27,50 +27,68 @@
                 </Card>
             </Col>
         </Row>
-        <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="600">
+        <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
-                <FormItem label="流程名称" prop="name">
-                    <Input v-model="formValidate.name"></Input>
+                <FormItem label="完成时间" prop="finish_date">
+                    <Input v-model="formValidate.finish_date"></Input>
                 </FormItem>
-                <!--todo: 修改选择方式  https://www.iviewui.com/components/transfer-->
-                <FormItem label="环节定义"> <!-- prop="step_config" 去除校验-->
-                    <Transfer
-                            :data="stepList" :titles="['所有环节','选中环节']"
-                            :target-keys="step_config_data"   :render-format="renderStep"   @on-change="handleChangeStep"  ></Transfer>
+                <FormItem label="表单数据" prop="form_data">
+                    <Input v-model="formValidate.form_data"></Input>
+                </FormItem>
+                <FormItem label="订单id" prop="order_id">
+                    <Input v-model="formValidate.order_id"></Input>
+                </FormItem>
+                <FormItem label="预计时间" prop="plan_date">
+                    <Input v-model="formValidate.plan_date"></Input>
+                </FormItem>
+                <FormItem label="数量" prop="pro_num">
+                    <Input v-model="formValidate.pro_num"></Input>
                 </FormItem>
                 <FormItem label="备注" prop="remarks">
                     <Input v-model="formValidate.remarks"></Input>
                 </FormItem>
-                <FormItem label="状态" prop="status">
-                    <Select style="width:200px" v-model="formValidate.status" >
-                        <Option v-for="item in status_dict"  :value="item.value" :key="item.value" >{{ item.label }}</Option>
-                    </Select>
+                <FormItem label="状态 0-待处理 1-处理中 2-完成 3-取消" prop="status">
+                    <Input v-model="formValidate.status"></Input>
+                </FormItem>
+                <FormItem label="用户id" prop="user_id">
+                    <Input v-model="formValidate.user_id"></Input>
                 </FormItem>
             </Form>
             <div slot="footer">
                 <Button type="text" @click="addCanFun" v-show="modalCanBut">取消</Button>
                 <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
             </div>
-        </Modal>
-        <Modal  title="详情" v-model="modalDetail" width="600">
+        </Modal>    
+        <Modal  title="详情" v-model="modalDetail">
             <Form :model="formValidate" :label-width="80">
-                <FormItem label="流程名称">
-                    <Input v-model="formValidate.name" readonly></Input>
+                <FormItem label="完成时间">
+                    <Input v-model="formValidate.finish_date" readonly></Input>
                 </FormItem>
-                <FormItem label="环节定义">
-                    <Table height="200" border stripe  size="small" :columns="show_step_cols" :data="show_step_data"></Table>
+                <FormItem label="表单数据">
+                    <Input v-model="formValidate.form_data" readonly></Input>
+                </FormItem>
+                <FormItem label="订单id">
+                    <Input v-model="formValidate.order_id" readonly></Input>
+                </FormItem>
+                <FormItem label="预计时间">
+                    <Input v-model="formValidate.plan_date" readonly></Input>
+                </FormItem>
+                <FormItem label="数量">
+                    <Input v-model="formValidate.pro_num" readonly></Input>
                 </FormItem>
                 <FormItem label="备注">
                     <Input v-model="formValidate.remarks" readonly></Input>
                 </FormItem>
-                <FormItem label="状态">
-                    <Input  :value="convertDict('status_type',formValidate.status)"  readonly></Input>
+                <FormItem label="状态 0-待处理 1-处理中 2-完成 3-取消">
+                    <Input v-model="formValidate.status" readonly></Input>
+                </FormItem>
+                <FormItem label="用户id">
+                    <Input v-model="formValidate.user_id" readonly></Input>
                 </FormItem>
             </Form>
             <div slot="footer">
             </div>
-        </Modal>
-
+        </Modal>    
     </div>
 </template>
 <script>
@@ -83,47 +101,14 @@
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
-                status_dict:{},
-                stepList:[],
-                show_step_data:[],
-                show_step_cols:[
-                    {
-                        title: '顺序',
-                        type: 'index',
-                        width: 60,
-                        align: 'center'
-                    },
-                    {
-                        title: '环节名称',
-                        key: 'label',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        width: 150,
-                        align: 'center',
-                    },
-                    {
-                        title: '描述',
-                        key: 'description',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                    }],
                 searchForm:{
                     current:1
                 },
                 data: [],
                 formValidate: {
                 },
-                step_config_data:[],
                 count:0,
-                columns: [
-                    {
-                        title: '流程名称',
-                        key: 'name',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                    },
+                columns: [     
                     {
                         title: '创建时间',
                         key: 'create_date',
@@ -132,14 +117,39 @@
                         align: 'center',
                     },
                     {
-                        title: '状态',
+                        title: '订单id',
+                        key: 'order_id',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        align: 'center',
+                    },
+                    {
+                        title: '预计时间',
+                        key: 'plan_date',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        align: 'center',
+                    },
+                    {
+                        title: '数量',
+                        key: 'pro_num',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        align: 'center',
+                    },
+                    {
+                        title: '状态 0-待处理 1-处理中 2-完成 3-取消',
                         key: 'status',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
-                        render: (h, params) => {
-                            return  h('span', util.showDictLabel('status_type',params.row.status));
-                        }
+                    },
+                    {
+                        title: '用户id',
+                        key: 'user_id',
+                        className: 'table-min-width',
+                        ellipsis:true,
+                        align: 'center',
                     },
                     {
                         title: '操作',
@@ -204,17 +214,29 @@
                     }
                 ],
                 ruleValidate: {
-                    name: [
-                        { required: true, message: '流程名称为必填项'}
+                    finish_date: [
+                        { required: true, message: '完成时间为必填项'}
+                    ],
+                    form_data: [
+                        { required: true, message: '表单数据为必填项'}
+                    ],
+                    order_id: [
+                        { required: true, message: '订单id为必填项'}
+                    ],
+                    plan_date: [
+                        { required: true, message: '预计时间为必填项'}
+                    ],
+                    pro_num: [
+                        { required: true, message: '数量为必填项'}
                     ],
                     remarks: [
                         { required: true, message: '备注为必填项'}
                     ],
                     status: [
-                        { required: true, message: '状态为必填项'}
+                        { required: true, message: '状态 0-待处理 1-处理中 2-完成 3-取消为必填项'}
                     ],
-                    step_config: [
-                        { required: true, message: '环节定义为必填项'}
+                    user_id: [
+                        { required: true, message: '用户id为必填项'}
                     ],
                 }
             }
@@ -223,21 +245,11 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                util.post(this,'biz/biz_process/pageData',this.searchForm,function(datas){
+                util.post(this,'biz/biz_order_process/pageData',this.searchForm,function(datas){   
                     _self.data=datas.data;
                     _self.count=datas.count;
                     _self.loading=false;
                 });
-
-            },
-            renderStep (item) {
-                return item.label ;//+ ' - ' + item.description;
-            },
-            handleChangeStep (newTargetKeys) {
-                this.step_config_data = newTargetKeys;
-            },
-            convertDict(type,value){
-                return util.showDictLabel(type,value);
             },
             handleSearch(){
                 this.searchForm.current=1;
@@ -247,80 +259,58 @@
                 this.searchForm.current=current;
                 this.init();
             },
-            add (){
-                this.formValidate={};
-                this.step_config_data = [];
-                this.modalAdd=true;
+            add (){     
+                this.formValidate={}; 
+                this.modalAdd=true;       
             },
             show (param) {
                 this.formValidate=util.copy(param.row);
-                this.show_step_data = [];
-                let _data = this.formValidate.step_config ? JSON.parse(this.formValidate.step_config) : [];
-                _data.forEach(item =>{
-                    this.stepList.forEach(_step =>{
-                        if(_step.key == item){
-                            this.show_step_data.push(_step);
-                        }
-                    });
-                });
-
-
-                this.modalDetail=true;
+                this.modalDetail=true;        
              },
             edit (param) {
                 this.formValidate=util.copy(param.row);
-                this.step_config_data = this.formValidate.step_config ? JSON.parse(this.formValidate.step_config) : [];
-                this.modalAdd=true;
+                this.modalAdd=true;        
              },
             remove (param) {
                 let _self=this;
                 this.loading=true;
-                util.post(this,'biz/biz_process/delData',{id:param.row.id},function(datas){
+                util.post(this,'biz/biz_order_process/delData',{id:param.row.id},function(datas){ 
                     _self.data.splice(param.index, 1);
-                    _self.loading =false;
+                    _self.loading =false;      
                     _self.$Message.success('删除成功！');
                 });
             },
             addOkFun(){
                 let _self=this;
-                this.formValidate.step_config = JSON.stringify( this.step_config_data);
-
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
-                        let _data=util.copy(this.formValidate);
+                        let _data=util.copy(this.formValidate); 
                         if(this.formValidate&&this.formValidate.id){
-                            util.post(this,'biz/biz_process/updateData',_data,function(datas){
+                            util.post(this,'biz/biz_order_process/updateData',_data,function(datas){  
                                 _self.$Message.success('编辑成功！');
                                 _self.addCanFun();
-                                _self.init();
-                            });
+                                _self.init();      
+                            });                        
                         }else{
-                            util.post(this,'biz/biz_process/addData',_data,function(datas){
+                            util.post(this,'biz/biz_order_process/addData',_data,function(datas){ 
                                 _self.$Message.success('新增成功！');
-                                _self.addCanFun();
-                                _self.init();
-                            });
+                                _self.addCanFun(); 
+                                _self.init();     
+                            });     
                         }
                     }else{
                         util.changeModalLoading(this);
-                    }
-                })
-            },
-            addCanFun(){
-                this.modalAdd=false;
+                    } 
+                })  
+            },   
+            addCanFun(){ 
+                this.modalAdd=false; 
                 util.changeModalLoading(this);
-                this.$refs['formRef'].resetFields();
+                this.$refs['formRef'].resetFields(); 
             }
         },
         mounted () {
-            this.status_dict=util.showDictList('status_type');
-            let _self = this;
-            util.post(this,'biz/biz_step/allData',{},function(datas){
-                datas.forEach(item=>{
-                    _self.stepList.push({key:item.id,label:item.name,description:item.remarks});
-                });
-            });
             this.init();
         }
     }
