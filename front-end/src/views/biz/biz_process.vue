@@ -19,6 +19,7 @@
                     </Row>
                     <Row style="margin-top:10px;">
                         <Button type="info" @click="add">添加</Button>
+                        <Button type="info" @click="openTest">测试</Button>
                     </Row>
                     <Row type="flex" justify="center" align="middle" class="advanced-router">
                         <Table border stripe :columns="columns" :data="data" :loading="loading" style="width: 100%;margin-top:10px"></Table>
@@ -70,13 +71,34 @@
             <div slot="footer">
             </div>
         </Modal>
+
+
+
+         <Modal  title="测试" v-model="showTest" width="800">
+             <Form :model="test_data" :label-width="80">
+                 <form-group :list="formList" ></form-group>
+
+             </Form>
+             <div slot="footer">
+             </div>
+         </Modal>
+
+
     </div>
 </template>
 <script>
     import util from '@/libs/util.js';
+    import formGroup from '@/views/sys/components/form-group.vue';
+
     export default {
+        components: {
+            formGroup
+        },
         data () {
             return {
+                showTest:false,
+                test_data:{},
+                formList:[],
                 modalAdd:false,
                 modalDetail:false,
                 loading:false,
@@ -256,6 +278,63 @@
                 this.step_config_data = [];
                 this.modalAdd=true;
             },
+            openTest(){
+                this.formList=[{
+                    name:'name',
+                    type:'i-input',
+                    value:'',
+                    label:'姓名',
+                    rule:[
+                        { required: true, message: 'The name cannot be empty', trigger: 'blur' }
+                    ],
+                },{
+                    name:'range',
+                    type:'slider',
+                    value:[10,40],
+                    range:true,
+                    label:'范围'
+                },{
+                    name:'select',
+                    type:'i-select',
+                    value:'',
+                    label:'性别',
+                    children:{
+                        type:'i-option',
+                        list:[
+                            {value:'man',title:'男'},
+                            {value:'woman',title:'女'},
+                        ]
+                    }
+                },{
+                    name:'education',
+                    type:'radio-group',
+                    value:1,
+                    label:'学历',
+                    children:{
+                        type:'radio',
+                        list:[
+                            {label:'man',title:'男'},
+                            {label:'woman',title:'女'},
+                        ]
+                    }
+                },{
+                    name:'skill',
+                    type:'checkbox-group',
+                    value:[],
+                    label:'技能',
+                    children:{
+                        type:'checkbox',
+                        list:[
+                            {label:'man',title:'大学'},
+                            {label:'woman',title:'高中'},
+                        ]
+                    }
+                }];
+
+
+                this.showTest=true;
+            },
+
             show (param) {
                 this.formValidate=util.copy(param.row);
                 this.show_step_data = [];
