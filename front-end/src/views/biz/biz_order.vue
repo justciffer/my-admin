@@ -533,7 +533,6 @@
                         if(datas && datas.step_list){
                             _self.addStepItem(datas.step_list);
                         }
-                        _self.$Message.success('启动订单！');
                     });
                 }else{
                     //清空
@@ -562,70 +561,11 @@
                         let _config = JSON.parse(item.form_config);
                         if(_config && _config.length > 0){
                             _config.forEach(_c=>{
-                                let  _item={
-                                    name:_c.key,
-                                    type:_c.type? 'Input':'Input',
-                                    label:_c.name,
-                                    value:''
-                                };
-                                this.stepFormItems.push(_item);
+                                this.stepFormItems.push(_c);
                             });
-                            //[{"type":"dict_outsource","key":"com","name":"素烧外协"}]
                         }
                     }
                 });
-
-              /*  this.stepForm=[{
-                    name:'name',
-                    type:'i-input',
-                    value:'',
-                    label:'姓名',
-                    rule:[
-                        { required: true, message: 'The name cannot be empty', trigger: 'blur' }
-                    ],
-                },{
-                    name:'range',
-                    type:'slider',
-                    value:[10,40],
-                    range:true,
-                    label:'范围'
-                },{
-                    name:'select',
-                    type:'i-select',
-                    value:'',
-                    label:'性别',
-                    children:{
-                        type:'i-option',
-                        list:[
-                            {value:'man',title:'男'},
-                            {value:'woman',title:'女'},
-                        ]
-                    }
-                },{
-                    name:'education',
-                    type:'radio-group',
-                    value:1,
-                    label:'学历',
-                    children:{
-                        type:'radio',
-                        list:[
-                            {label:'man',title:'男'},
-                            {label:'woman',title:'女'},
-                        ]
-                    }
-                },{
-                    name:'skill',
-                    type:'checkbox-group',
-                    value:[],
-                    label:'技能',
-                    children:{
-                        type:'checkbox',
-                        list:[
-                            {label:'man',title:'大学'},
-                            {label:'woman',title:'高中'},
-                        ]
-                    }
-                }];*/
             },
             add (){
                 this.formValidate={
