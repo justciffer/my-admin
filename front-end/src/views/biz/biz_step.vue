@@ -28,8 +28,7 @@
             </Col>
         </Row>
 
-
-         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="800">
+         <Modal  title="编辑"  :mask-closable="false" :closable="false" v-model="modalAdd" width="900">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
                 <FormItem label="订单环节" prop="order_step">
                     <Select style="width:200px" v-model="formValidate.order_step">
@@ -113,23 +112,31 @@
                         title: '名称',
                         align: 'center',
                         key: 'name',
-                        width: 180,
+                        width: 150,
                         editable: true
                     },
                     {
                         title: '属性',
                         align: 'center',
                         key: 'key',
-                        width: 180,
+                        width: 110,
                         editable: true
                     },
                     {
                         title: '类型',
                         align: 'center',
                         key: 'type',
-                        width: 180,
+                        width: 120,
                         editable: true,
                         select_cfg: 'field_type'
+                    },
+                    {
+                        title: '是否默认',
+                        align: 'center',
+                        key: 'def',
+                        width: 100,
+                        editable: true,
+                        select_cfg: 'boolean_type'
                     }
                 ],
                 editInlineColumns: [
@@ -160,6 +167,14 @@
                         width: 120,
                         editable: true,
                         select_cfg: 'field_type'
+                    },
+                    {
+                        title: '是否默认',
+                        align: 'center',
+                        key: 'def',
+                        width: 100,
+                        editable: true,
+                        select_cfg: 'boolean_type'
                     },
                     {
                         title: '操作',

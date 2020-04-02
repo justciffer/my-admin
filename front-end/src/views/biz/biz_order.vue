@@ -3,6 +3,22 @@
         min-width:120px;
         width:120px
     }
+     .line-box{
+         display: flex;
+         justify-content: space-between;
+         align-items: center;
+         margin: 40px auto;
+     }
+     .text{
+         min-width: 120px;
+         font-size: 14px;
+         text-align: center;
+     }
+     .line{
+         width: 40%;
+         height: 1px;
+         background-color: #ccc;
+     }
 </style>
 <template>
      <div>
@@ -247,8 +263,8 @@
             </div>
         </Modal>
 
-         <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" >
-             <Form ref="formRef_start" :model="startOrderForm"  :label-width="80">
+         <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
+             <Form ref="formRef_start" :model="startOrderForm"  :label-width="200">
                  <FormItem label="订单编号" prop="order_step">
                      <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
                  </FormItem>
@@ -256,10 +272,14 @@
                      <Input v-model="startOrderForm.order_name" readonly="" style="width:200px"></Input>
                  </FormItem>
                  <FormItem label="流程模板" prop="status">
-                     <Select style="width:400px" v-model="startOrderForm.process_id" @on-change="showStep" >
+                     <Select style="width:200px" v-model="startOrderForm.process_id" @on-change="showStep" >
                          <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + " -- " + item.remarks}}</Option>
                      </Select>
                  </FormItem>
+                 <div class="line-box">
+                     <span class="line"></span><span class="text">流程初始化</span><span class="line"></span>
+                 </div>
+
                  <my-form-group :list="stepFormItems" ></my-form-group>
                  <!--todo: 动态表单-->
              </Form>
@@ -561,7 +581,10 @@
                         let _config = JSON.parse(item.form_config);
                         if(_config && _config.length > 0){
                             _config.forEach(_c=>{
-                                this.stepFormItems.push(_c);
+                                if(_c.def == '1'){
+                                    _c.name = item.name + " >> " + _c.name;
+                                    this.stepFormItems.push(_c);
+                                }
                             });
                         }
                     }

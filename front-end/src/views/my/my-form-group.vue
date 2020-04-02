@@ -6,7 +6,7 @@
                 :label="item.label"
                 :key = "`${_uid}_${index}`"
         >
-            <component :is="item.type" :range="item.range" v-model="item.value">
+            <component :is="item.type" :range="item.range" v-model="item.value"    style="width:200px">
                 <!--做判断是否有children 属性，有的话就做组合组件效果 label 是给radio用的 用来单选-->
                 <template v-if="item.children">
                     <component
@@ -64,7 +64,7 @@
                         name:_c.key,
                         type:_t,
                         label:_c.name,
-                        value:_c.value? _c.value : ''
+                        value:_c.value? _c.value : null
                     };
 
                     if(_t == 'Select'){
