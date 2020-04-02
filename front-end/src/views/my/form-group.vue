@@ -3,7 +3,6 @@
         <FormItem
                 v-for="(item,index) in list"
                 :label="item.label"
-                label-position="left"
                 :key = "`${_uid}_${index}`"
         >
             <component :is="item.type" :range="item.range" v-model="item.value">
@@ -37,11 +36,12 @@
             list:{
                 type:Array,
                 default:()=>{}
-            },
-            lableWidth:{
-                type:Number,
-                default:100
             }
+            // ,
+            // lableWidth:{
+            //     type:Number,
+            //     default:100
+            // }
         }
     }
 </script>

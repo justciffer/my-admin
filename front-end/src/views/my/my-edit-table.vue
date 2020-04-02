@@ -9,9 +9,9 @@
 </template>
 
 <script>
-import util from '@/libs/util.js';
+    import util from '@/libs/util.js';
 
-const editButton = (vm, h, currentRow, index) => {
+    const editButton = (vm, h, currentRow, index) => {
     return h('Button', {
         props: {
             type: currentRow.editting ? 'success' : 'primary',

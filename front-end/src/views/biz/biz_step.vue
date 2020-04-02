@@ -93,7 +93,7 @@
 </template>
 <script>
 
-    import myEditTable from '@/views/demo/tables/components/myEditTable.vue';
+    import myEditTable from '@/views/my/my-edit-table.vue';
     import util from '@/libs/util.js';
 
     export default {

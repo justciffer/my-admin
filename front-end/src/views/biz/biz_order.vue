@@ -147,7 +147,7 @@
                 <Button type="text" @click="addCanFun" v-show="modalCanBut">取消</Button>
                 <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
             </div>
-        </Modal>    
+        </Modal>
         <Modal  title="详情" v-model="modalDetail" width="700">
             <Form :model="formValidate" :label-width="100">
                 <Row>
@@ -260,7 +260,7 @@
                          <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + " -- " + item.remarks}}</Option>
                      </Select>
                  </FormItem>
-                 <form-group :list="stepFormItems" ></form-group>
+                 <my-form-group :list="stepFormItems" ></my-form-group>
                  <!--todo: 动态表单-->
              </Form>
              <div slot="footer">
@@ -272,10 +272,11 @@
 </template>
 <script>
     import util from '@/libs/util.js';
-    import formGroup from '@/views/sys/components/form-group.vue';
+    import myFormGroup from '@/views/my/my-form-group.vue';
+
     export default {
         components: {
-            formGroup
+            myFormGroup
         },
         data () {
             return {
@@ -491,7 +492,7 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                util.post(this,'biz/biz_order/pageData',this.searchForm,function(datas){   
+                util.post(this,'biz/biz_order/pageData',this.searchForm,function(datas){
                     _self.data=datas.data;
                     _self.count=datas.count;
                     _self.loading=false;
@@ -540,14 +541,17 @@
 
             },
             startOrderOkFun (param) {
-                let _self=this;
-                util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
-                    _self.init();
-                    _self.$Message.success('启动订单！');
-                });
+
+                console.log(this.stepFormItems);
+                // let _self=this;
+                // util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
+                //     _self.init();
+                //     _self.$Message.success('启动订单！');
+                // });
             },
             startOrderCanFun (param) {
                 this.showStartOrder=false;
+                this.stepFormItems = [];
                 util.changeModalLoading(this);
                 this.$refs['formRef'].resetFields();
             },
@@ -560,7 +564,7 @@
                             _config.forEach(_c=>{
                                 let  _item={
                                     name:_c.key,
-                                    type:_c.type? 'i-input':'i-input',
+                                    type:_c.type? 'Input':'Input',
                                     label:_c.name,
                                     value:''
                                 };
@@ -623,11 +627,11 @@
                     }
                 }];*/
             },
-            add (){     
+            add (){
                 this.formValidate={
                    with_tax:'0'
                 };
-                this.modalAdd=true;       
+                this.modalAdd=true;
             },
             show (param) {
                 this.formValidate=util.copy(param.row);
@@ -644,9 +648,9 @@
             remove (param) {
                 let _self=this;
                 this.loading=true;
-                util.post(this,'biz/biz_order/delData',{id:param.row.id},function(datas){ 
+                util.post(this,'biz/biz_order/delData',{id:param.row.id},function(datas){
                     _self.data.splice(param.index, 1);
-                    _self.loading =false;      
+                    _self.loading =false;
                     _self.$Message.success('删除成功！');
                 });
             },
@@ -655,27 +659,27 @@
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
-                        let _data=util.copy(this.formValidate); 
+                        let _data=util.copy(this.formValidate);
                         if(this.formValidate&&this.formValidate.id){
-                            util.post(this,'biz/biz_order/updateData',_data,function(datas){  
+                            util.post(this,'biz/biz_order/updateData',_data,function(datas){
                                 _self.$Message.success('编辑成功！');
                                 _self.addCanFun();
-                                _self.init();      
-                            });                        
+                                _self.init();
+                            });
                         }else{
-                            util.post(this,'biz/biz_order/addData',_data,function(datas){ 
+                            util.post(this,'biz/biz_order/addData',_data,function(datas){
                                 _self.$Message.success('新增成功！');
-                                _self.addCanFun(); 
-                                _self.init();     
-                            });     
+                                _self.addCanFun();
+                                _self.init();
+                            });
                         }
                     }else{
                         util.changeModalLoading(this);
-                    } 
-                })  
-            },   
-            addCanFun(){ 
-                this.modalAdd=false; 
+                    }
+                })
+            },
+            addCanFun(){
+                this.modalAdd=false;
                 util.changeModalLoading(this);
                 this.$refs['formRef_start'].resetFields();
             }
