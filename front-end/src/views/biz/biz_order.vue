@@ -264,14 +264,14 @@
         </Modal>
 
          <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
-             <Form ref="formRef_start" :model="startOrderForm"  :label-width="200">
+             <Form ref="formRef_start" :model="startOrderForm" :rules="startOrderFormRules" :label-width="200">
                  <FormItem label="订单编号" prop="order_step">
                      <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
                  </FormItem>
                  <FormItem label="订单名称" prop="order_step">
                      <Input v-model="startOrderForm.order_name" readonly="" style="width:200px"></Input>
                  </FormItem>
-                 <FormItem label="流程模板" prop="status">
+                 <FormItem label="流程模板" prop="process_id">
                      <Select style="width:200px" v-model="startOrderForm.process_id" @on-change="showStep" >
                          <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + " -- " + item.remarks}}</Option>
                      </Select>
@@ -280,7 +280,7 @@
                      <span class="line"></span><span class="text">流程初始化</span><span class="line"></span>
                  </div>
 
-                 <my-form-group :list="stepFormItems" ></my-form-group>
+                 <my-form-group :list="stepFormItems" :parent_form="startOrderForm"></my-form-group>
                  <!--todo: 动态表单-->
              </Form>
              <div slot="footer">
@@ -459,6 +459,11 @@
                         }
                     }
                 ],
+                startOrderFormRules:{
+                    process_id: [
+                        { required: true, message: '请选择流程模版'}
+                    ],
+                },
                 ruleValidate: {
                     custom: [
                         { required: true, message: '客户联系人为必填项'}
@@ -559,14 +564,31 @@
                 }
 
             },
-            startOrderOkFun (param) {
+            startOrderOkFun () {
 
                 console.log(this.stepFormItems);
-                // let _self=this;
-                // util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
-                //     _self.init();
-                //     _self.$Message.success('启动订单！');
-                // });
+                console.log(this.startOrderForm);
+                let _self=this;
+                this.$refs['formRef_start'].validate((valid) => {
+                    if (valid) {
+                        util.changeModalLoading(this,true);
+                        let _data=util.copy(this.formValidate);
+
+                        _self.$Message.success('启动订单！');
+                        _self.showStartOrder=false;
+                        util.changeModalLoading(this);
+                        _self.$refs['formRef_start'].resetFields();
+                        //todo
+                        // util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
+                        //     _self.init();
+                        //     _self.$Message.success('启动订单！');
+                        // });
+
+                    }else{
+                        util.changeModalLoading(this);
+                    }
+                })
+
             },
             startOrderCanFun (param) {
                 this.showStartOrder=false;
@@ -606,7 +628,11 @@
                 this.formValidate=util.copy(param.row);
                 this.formValidate.pro_price=Number.parseFloat( this.formValidate.pro_price);
                 this.formValidate.pro_num=Number.parseInt( this.formValidate.pro_num);
-                 this.modalAdd=true;
+                this.formValidate.invoice_date = this.formatDate(this.formValidate.invoice_date);
+                this.formValidate.plan_date = this.formatDate(this.formValidate.plan_date);
+
+
+                this.modalAdd=true;
              },
             remove (param) {
                 let _self=this;
@@ -644,7 +670,7 @@
             addCanFun(){
                 this.modalAdd=false;
                 util.changeModalLoading(this);
-                this.$refs['formRef_start'].resetFields();
+                this.$refs['formRef'].resetFields();
             }
         },
         mounted () {

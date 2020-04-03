@@ -6,7 +6,7 @@
                 :label="item.label"
                 :key = "`${_uid}_${index}`"
         >
-            <component :is="item.type" :range="item.range" v-model="item.value"    style="width:200px">
+            <component :is="item.type" :range="item.range" v-model="parent_form[item.name]"    style="width:200px">
                 <!--做判断是否有children 属性，有的话就做组合组件效果 label 是给radio用的 用来单选-->
                 <template v-if="item.children">
                     <component
@@ -45,6 +45,10 @@
             list:{
                 type:Array,
                 default:()=>{}
+            },
+            parent_form:{
+                type:Object,
+                default:()=>{}
             }
         },
 
@@ -75,9 +79,6 @@
 
                     this.items.push(_item);
                 });
-
-
-                console.log(this.items);
             }
         },
 
