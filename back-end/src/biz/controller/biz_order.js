@@ -32,7 +32,7 @@ module.exports = class extends Base {
 
   async startAction() {
       let param = this.post();
-      let order = await this.model('biz_order').getData(param.id);
+      let order = await this.model('biz_order').getData(param.order_id);
       //获取表单模板
 
       //获取表单定义
@@ -49,7 +49,7 @@ module.exports = class extends Base {
 
       return this.success();
   }
-  
+
   async delDataAction() {
     let param=this.post();
     await this.model('biz_order').delData(param);

@@ -589,17 +589,14 @@
                 this.$refs['formRef_start'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
-                        let _data=util.copy(this.formValidate);
-
-                        _self.$Message.success('启动订单！');
-                        _self.showStartOrder=false;
-                        util.changeModalLoading(this);
-                        //todo:  _self.$refs['formRef_start'].resetFields();
-                        //todo
-                        // util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
-                        //     _self.init();
-                        //     _self.$Message.success('启动订单！');
-                        // });
+                        let _data=util.copy(this.startOrderForm);
+                        util.post(this,'biz/biz_order/start',_data,function(datas){
+                            _self.$Message.success('启动订单！');
+                            _self.showStartOrder=false;
+                            util.changeModalLoading(_self);
+                            _self.$refs['formRef_start'].resetFields();
+                            _self.init();
+                        });
 
                     }else{
                         util.changeModalLoading(this);
@@ -651,6 +648,10 @@
                     if (valid) {
                         util.changeModalLoading(this,true);
                         let _data=util.copy(this.formValidate);
+
+                        _data.invoice_date = this.formatDate(_data.invoice_date);
+                        _data.plan_date = this.formatDate(_data.plan_date);
+
                         if(this.formValidate&&this.formValidate.id){
                             util.post(this,'biz/biz_order/updateData',_data,function(datas){
                                 _self.$Message.success('编辑成功！');
