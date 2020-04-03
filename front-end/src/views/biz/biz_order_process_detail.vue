@@ -127,15 +127,8 @@
                 count:0,
                 columns: [
                     {
-                        title: '订单编号',
-                        key: 'o_order_no',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                    },
-                    {
-                        title: '订单名称',
-                        key: 'o_name',
+                        title: '订单id',
+                        key: 'order_id',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
@@ -161,13 +154,13 @@
                         ellipsis:true,
                         align: 'center',
                     },
-                    /*{
+                    {
                         title: '数量',
                         key: 'pro_num',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
-                    },*/
+                    },
                     {
                         title: '状态',
                         key: 'status',
@@ -179,8 +172,8 @@
                         }
                     },
                     {
-                        title: '办理人',
-                        key: 'user_name',
+                        title: '用户id',
+                        key: 'user_id',
                         className: 'table-min-width',
                         ellipsis:true,
                         align: 'center',
@@ -285,7 +278,6 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                this.searchForm.process_status='1';
                 util.post(this,'biz/biz_order_process/pageData',this.searchForm,function(datas){   
                     _self.data=datas.data;
                     _self.count=datas.count;

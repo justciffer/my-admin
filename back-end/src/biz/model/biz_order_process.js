@@ -32,9 +32,26 @@ module.exports = class extends think.Model {
   }
 
   async pageData(param){
-    let sql=this.page(param.current).where({del_flag:0}).order('create_date desc');
+    let sql=this.alias('a').join({
+        table: 'sys_user',
+        join: 'left',
+        as: 'b',
+        on: ['user_id', 'id']
+    }).join({
+        table: 'biz_order',
+        as: 'c',
+        on: ['order_id', 'id']
+    }).field("a.*,b.name as user_name,c.order_no as o_order_no,c.name as o_name,c.invoice_date as o_invoice_date,"+
+        "c.pro_num as o_pro_num,c.pro_price as o_pro_price"
+    ).page(param.current).where({'a.del_flag':0}).order('a.create_date desc');
+    if(!think.isEmpty(param.plan_date)){
+      sql=sql.where({'a.plan_date':['like', '%'+param.plan_date+'%']});
+    }
     if(!think.isEmpty(param.status)){
-      sql=sql.where({status:['like', '%'+param.status+'%']});
+      sql=sql.where({'a.status':['like', '%'+param.status+'%']});
+    }
+    if(!think.isEmpty(param.process_status)){
+        sql=sql.where({'a.process_status':['like', '%'+param.process_status+'%']});
     }
     let data = await sql.countSelect();
     return data;

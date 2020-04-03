@@ -17,7 +17,7 @@ module.exports = class extends think.Model {
 			}
 		}		
 		if(list.length>0){
-			await this.model('sys_role_menu').addMany(list);
+            await this.model('sys_role_menu').addMany(list);
 		}
 	}
 

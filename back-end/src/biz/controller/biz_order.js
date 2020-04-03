@@ -66,11 +66,16 @@ module.exports = class extends Base {
            status	 状态 0-待处理 1-处理中 2-完成 3-取消
            del_flag
          */
+
+        let first= true;
         for(const  step of param.stepList) {
             let order_step_data={};
-            order_step_data.order_id=param.order_id;
-            order_step_data.user_id= this.userInfo().id;
+            order_step_data.order_id= param.order_id;
+            // order_step_data.user_id= this.userInfo().id;
+            order_step_data.step_name= step.name;
             order_step_data.status= '0';
+            order_step_data.process_status= first? '1' : '0';
+            first=false;
             let _data={};
             if(step.itemList && step.itemList.length > 0){
                 step.itemList.forEach(item=>{

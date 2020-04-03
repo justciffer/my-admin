@@ -47,6 +47,6 @@ module.exports = class extends think.Model {
   }
 
   async getDataByIds(ids){
-      return await this.where({id: ['IN',ids],del_flag:0}).select();
+      return await this.where({id: ['IN',ids],del_flag:0}).order('sort_no asc').select();
   }
 };
