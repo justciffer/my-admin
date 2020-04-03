@@ -280,7 +280,7 @@
                      <span class="line"></span><span class="text">流程初始化</span><span class="line"></span>
                  </div>
                  <!--todo: 动态表单-->
-                 <my-form-group :list="stepFormItems" :parent_form="startOrderNeedData"></my-form-group>
+                 <my-form-group :list="stepDefFormItems" ></my-form-group>
 
              </Form>
              <div slot="footer">
@@ -303,9 +303,9 @@
                 modalAdd:false,
                 modalDetail:false,
                 showStartOrder:false,
-                stepFormItems:[],
+                stepDefFormItems:[],
+                stepList:[],
                 startOrderForm:{},
-                startOrderNeedData:{},
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
@@ -533,10 +533,11 @@
 
             startOrder (param) {
                 this.startOrderForm = {};
+                this.stepList=[];
+                this.stepDefFormItems=[];
                 this.startOrderForm.order_id = param.row.id;
                 this.startOrderForm.order_no = param.row.order_no;
                 this.startOrderForm.order_name = param.row.name;
-                this.startOrderNeedData = {};
                 this.showStartOrder=true;
 
                 let _self=this;
@@ -549,33 +550,36 @@
              * 流程模版 -- 环节
              */
             showStep(process_id){
-                this.startOrderNeedData = {};
+                this.stepList = [];
+                this.stepDefFormItems = [];
                 if(process_id){
                     let _self=this;
                     util.post(this,'biz/biz_process/processData',{process_id:process_id},function(datas){
                         if(datas && datas.step_list){
-                            _self.addStepItem(datas.step_list);
+                            _self.stepList = datas.step_list;
+                            _self.addStepItem( _self.stepList);
                         }
                     });
-                }else{
-                    //清空
                 }
-
             },
             /**
              * 流程模版 -- 环节 -- 默认值
              */
             addStepItem(stepList){
-                this.stepFormItems = [];
                 stepList.forEach(item =>{
                     if(item.form_config){
                         let _config = JSON.parse(item.form_config);
                         if(_config && _config.length > 0){
+                            item.itemList=_config;
                             _config.forEach(_c=>{
+                                _c.origin_name =  _c.name;
+                                _c.origin_key =  _c.key;
+
+                                //默认值
                                 if(_c.def == '1'){
                                     _c.name = item.name + " >> " + _c.name;
                                     _c.key = item.id + "#" + _c.key;
-                                    this.stepFormItems.push(_c);
+                                    this.stepDefFormItems.push(_c);
                                 }
                             });
                         }
@@ -583,8 +587,8 @@
                 });
             },
             startOrderOkFun () {
-                this.startOrderForm.needData=this.startOrderNeedData;
-                console.log(this.startOrderForm);
+                this.startOrderForm.stepList=this.stepList;
+                console.log( this.startOrderForm);
                 let _self=this;
                 this.$refs['formRef_start'].validate((valid) => {
                     if (valid) {
@@ -606,7 +610,6 @@
             },
             startOrderCanFun () {
                 this.showStartOrder=false;
-                this.stepFormItems = [];
                 util.changeModalLoading(this);
                 this.$refs['formRef_start'].resetFields();
             },

@@ -2,11 +2,12 @@
     <!--<Form :lable-width="lableWidth">-->
     <div>
         <FormItem
-                v-for="(item,index) in items"
-                :label="item.label"
+                v-for="(item,index) in list"
+                :label="item.i_label"
                 :key = "`${_uid}_${index}`"
         >
-            <component :is="item.type" :range="item.range" v-model="parent_form[item.name]"    style="width:200px">
+            <!--:range="item.range"-->
+            <component :is="item.i_type"  v-model="item.i_value"    style="width:200px">
                 <!--做判断是否有children 属性，有的话就做组合组件效果 label 是给radio用的 用来单选-->
                 <template v-if="item.children">
                     <component
@@ -36,11 +37,6 @@
 
     export default {
         name: "myFormGroup",
-        data () {
-            return {
-                items:[]
-            };
-        },
         props:{
             list:{
                 type:Array,
@@ -57,27 +53,19 @@
         },
         methods: {
             init () {
-                this.items=[];
-
-
                 //todo：type 字典的值对应组件
                 this.list.forEach(_c=>{
                     let _t = _c.type.startsWith('dict_') ? 'Select' : _c.type;
-
-                    let  _item={
-                        name:_c.key,
-                        type:_t,
-                        label:_c.name,
-                        value:_c.value? _c.value : null
-                    };
+                    _c.i_name=_c.key;
+                    _c.i_type=_t;
+                    _c.i_label=_c.name;
+                    _c.i_value=_c.value? _c.value : null;
 
                     if(_t == 'Select'){
                         let dict_key = _c.type.replace('dict_','');
-                        let dict_list =util.showDictList(dict_key);
-                        _item.children = {type:'Option',list:dict_list};
+                        let dict_list = util.showDictList(dict_key);
+                        _c.children = {type:'Option',list:dict_list};
                     }
-
-                    this.items.push(_item);
                 });
             }
         },

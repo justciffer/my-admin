@@ -20,6 +20,9 @@ module.exports = class extends think.Model {
     await this.where({id:id}).update({update_date:think.datetime(),del_flag:1});
   }
 
+  async delFlagDataByOrderId(orderId){
+      await this.where({order_id:orderId}).update({update_date:think.datetime(),del_flag:1});
+  }
   async updateData(param){
     let id=param.id;
     param.update_date=think.datetime();
