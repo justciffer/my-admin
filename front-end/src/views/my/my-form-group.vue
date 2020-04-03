@@ -87,37 +87,6 @@
             list: {
                 handler () {
                     this.init();
-                    //[{"type":"dict_outsource","key":"com","name":"素烧外协"}]
-
-
-                    /*  this.stepForm=[{
-                                      name:'name',
-                                      type:'i-input',
-                                      value:'',
-                                      label:'姓名',
-                                      rule:[
-                                          { required: true, message: 'The name cannot be empty', trigger: 'blur' }
-                                      ],
-                                  },{
-                                      name:'range',
-                                      type:'slider',
-                                      value:[10,40],
-                                      range:true,
-                                      label:'范围'
-                                  },{
-                                      name:'select',
-                                      type:'i-select',
-                                      value:'',
-                                      label:'性别',
-                                      children:{
-                                          type:'i-option',
-                                          list:[
-                                              {value:'man',title:'男'},
-                                              {value:'woman',title:'女'},
-                                          ]
-                                      }
-                                  }];*/
-
                 },
                 deep: true,
                 immediate: true,

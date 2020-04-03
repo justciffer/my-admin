@@ -265,10 +265,10 @@
 
          <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
              <Form ref="formRef_start" :model="startOrderForm" :rules="startOrderFormRules" :label-width="200">
-                 <FormItem label="订单编号" prop="order_step">
+                 <FormItem label="订单编号" prop="order_no">
                      <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
                  </FormItem>
-                 <FormItem label="订单名称" prop="order_step">
+                 <FormItem label="订单名称" prop="order_name">
                      <Input v-model="startOrderForm.order_name" readonly="" style="width:200px"></Input>
                  </FormItem>
                  <FormItem label="流程模板" prop="process_id">
@@ -279,9 +279,9 @@
                  <div class="line-box">
                      <span class="line"></span><span class="text">流程初始化</span><span class="line"></span>
                  </div>
-
-                 <my-form-group :list="stepFormItems" :parent_form="startOrderForm"></my-form-group>
                  <!--todo: 动态表单-->
+                 <my-form-group :list="stepFormItems" :parent_form="startOrderNeedData"></my-form-group>
+
              </Form>
              <div slot="footer">
                  <Button type="text" @click="startOrderCanFun" v-show="modalCanBut">取消</Button>
@@ -305,6 +305,7 @@
                 showStartOrder:false,
                 stepFormItems:[],
                 startOrderForm:{},
+                startOrderNeedData:{},
                 loading:false,
                 modalLoading:false,
                 modalCanBut:true,
@@ -381,29 +382,21 @@
                         align: 'center',
                         render: (h, params) => {
                             return h('div', [
-                                h('Poptip', {
+                                h('Button', {
                                     props: {
-                                        confirm: true,
-                                        title: '您确定要开始这个订单吗?',
-                                        transfer: true
+                                        type: 'warning',
+                                        size: 'small'
+                                    },
+                                    style: {
+                                        marginRight: '5px'
                                     },
                                     on: {
-                                        'on-ok': () => {
+                                        click: () => {
                                             this.startOrder(params);
                                         }
                                     }
-                                }, [
-                                    h('Button', {
-                                        style: {
-                                            marginRight: '5px'
-                                        },
-                                        props: {
-                                            type: 'warning',
-                                            placement: 'top',
-                                            size: 'small'
-                                        }
-                                    }, '开始')
-                                ]),
+                                }, '开始'),
+
                                 h('Button', {
                                     props: {
                                         type: 'info',
@@ -537,11 +530,13 @@
                 this.searchForm.current=current;
                 this.init();
             },
+
             startOrder (param) {
                 this.startOrderForm = {};
                 this.startOrderForm.order_id = param.row.id;
                 this.startOrderForm.order_no = param.row.order_no;
                 this.startOrderForm.order_name = param.row.name;
+                this.startOrderNeedData = {};
                 this.showStartOrder=true;
 
                 let _self=this;
@@ -550,11 +545,14 @@
                     _self.process_list=datas;
                 });
             },
+            /**
+             * 流程模版 -- 环节
+             */
             showStep(process_id){
+                this.startOrderNeedData = {};
                 if(process_id){
                     let _self=this;
                     util.post(this,'biz/biz_process/processData',{process_id:process_id},function(datas){
-                        console.log(datas);
                         if(datas && datas.step_list){
                             _self.addStepItem(datas.step_list);
                         }
@@ -564,9 +562,28 @@
                 }
 
             },
+            /**
+             * 流程模版 -- 环节 -- 默认值
+             */
+            addStepItem(stepList){
+                this.stepFormItems = [];
+                stepList.forEach(item =>{
+                    if(item.form_config){
+                        let _config = JSON.parse(item.form_config);
+                        if(_config && _config.length > 0){
+                            _config.forEach(_c=>{
+                                if(_c.def == '1'){
+                                    _c.name = item.name + " >> " + _c.name;
+                                    _c.key = item.id + "#" + _c.key;
+                                    this.stepFormItems.push(_c);
+                                }
+                            });
+                        }
+                    }
+                });
+            },
             startOrderOkFun () {
-
-                console.log(this.stepFormItems);
+                this.startOrderForm.needData=this.startOrderNeedData;
                 console.log(this.startOrderForm);
                 let _self=this;
                 this.$refs['formRef_start'].validate((valid) => {
@@ -577,7 +594,7 @@
                         _self.$Message.success('启动订单！');
                         _self.showStartOrder=false;
                         util.changeModalLoading(this);
-                        _self.$refs['formRef_start'].resetFields();
+                        //todo:  _self.$refs['formRef_start'].resetFields();
                         //todo
                         // util.post(this,'biz/biz_order/start',{id:param.row.id},function(datas){
                         //     _self.init();
@@ -590,28 +607,13 @@
                 })
 
             },
-            startOrderCanFun (param) {
+            startOrderCanFun () {
                 this.showStartOrder=false;
                 this.stepFormItems = [];
                 util.changeModalLoading(this);
-                this.$refs['formRef'].resetFields();
+                this.$refs['formRef_start'].resetFields();
             },
-            addStepItem(stepList){
-                this.stepFormItems = [];
-                stepList.forEach(item =>{
-                    if(item.form_config){
-                        let _config = JSON.parse(item.form_config);
-                        if(_config && _config.length > 0){
-                            _config.forEach(_c=>{
-                                if(_c.def == '1'){
-                                    _c.name = item.name + " >> " + _c.name;
-                                    this.stepFormItems.push(_c);
-                                }
-                            });
-                        }
-                    }
-                });
-            },
+
             add (){
                 this.formValidate={
                    with_tax:'0'
