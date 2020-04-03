@@ -10,7 +10,7 @@ Target Server Type    : MYSQL
 Target Server Version : 80013
 File Encoding         : 65001
 
-Date: 2020-04-01 23:05:51
+Date: 2020-04-03 23:12:10
 */
 
 SET FOREIGN_KEY_CHECKS=0;
@@ -38,7 +38,7 @@ CREATE TABLE `biz_order` (
   `with_tax` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '含税 1 是  0 否',
   `pay_type` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '付款方式',
   `pay_status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '付款状态 0-未付款 1-部分付款 2-已付款',
-  `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '状态 1 完成  0 未开始  2 生产中 3 暂定 4 取消',
+  `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '状态 0 未开始  1生产中 2 完成  3 暂定 4 取消',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '0' COMMENT '删除标记',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='业务订单';
@@ -46,7 +46,7 @@ CREATE TABLE `biz_order` (
 -- ----------------------------
 -- Records of biz_order
 -- ----------------------------
-INSERT INTO `biz_order` VALUES ('24e25bf0-71c2-11ea-9172-2743e53b85d0', 't001', '测试', '001型号', '200', '20000', '材质', '厂家', '客户联系', '2020-03-29 21:35:24', '2020-03-29 22:10:46', '2020-03-29 00:00:00', '2020-04-01 00:00:00', null, '1213', '1', '0', '1', '0', '0');
+INSERT INTO `biz_order` VALUES ('24e25bf0-71c2-11ea-9172-2743e53b85d0', 't001', '测试', '001型号', '200', '20000', '材质', '厂家', '客户联系', '2020-03-29 21:35:24', '2020-04-03 23:10:57', '2020-03-29 00:00:00', '2020-04-01 00:00:00', '2020-04-22 00:00:00', '1213', '1', '0', '1', '1', '0');
 
 -- ----------------------------
 -- Table structure for biz_order_process
@@ -54,9 +54,10 @@ INSERT INTO `biz_order` VALUES ('24e25bf0-71c2-11ea-9172-2743e53b85d0', 't001', 
 DROP TABLE IF EXISTS `biz_order_process`;
 CREATE TABLE `biz_order_process` (
   `id` varchar(64) NOT NULL COMMENT '编号',
+  `step_name` varchar(100) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '环节名称',
   `order_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '订单id',
-  `user_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '用户id',
-  `pro_num` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci NOT NULL COMMENT '数量',
+  `user_id` varchar(64) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '用户id',
+  `pro_num` varchar(10) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '数量',
   `form_data` varchar(2000) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '表单数据',
   `plan_date` datetime DEFAULT NULL COMMENT '预计时间',
   `finish_date` datetime DEFAULT NULL COMMENT '完成时间',
@@ -64,6 +65,7 @@ CREATE TABLE `biz_order_process` (
   `update_date` datetime DEFAULT NULL COMMENT '更新时间',
   `remarks` varchar(255) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '备注',
   `status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '状态 0-待处理 1-处理中 2-完成 3-取消',
+  `process_status` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT NULL COMMENT '是否激活 0-否 1-是',
   `del_flag` char(1) CHARACTER SET utf8 COLLATE utf8_general_ci DEFAULT '0' COMMENT '删除标记',
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COMMENT='订单流程';
@@ -71,6 +73,10 @@ CREATE TABLE `biz_order_process` (
 -- ----------------------------
 -- Records of biz_order_process
 -- ----------------------------
+INSERT INTO `biz_order_process` VALUES ('524a4810-75bd-11ea-8042-09ff8be2ffe0', '模具生产', '24e25bf0-71c2-11ea-9172-2743e53b85d0', null, null, '{\"com\":\"o2\"}', null, null, '2020-04-03 23:10:57', null, null, '0', '1', '0');
+INSERT INTO `biz_order_process` VALUES ('524ae450-75bd-11ea-8042-09ff8be2ffe0', '成型（干压）', '24e25bf0-71c2-11ea-9172-2743e53b85d0', null, null, '{\"c2\":1111,\"c1\":null}', null, null, '2020-04-03 23:10:57', null, null, '0', '0', '0');
+INSERT INTO `biz_order_process` VALUES ('cce5cef0-75b3-11ea-8233-01241a541daf', '成型（干压）', '24e25bf0-71c2-11ea-9172-2743e53b85d0', '', null, '{\"c2\":123,\"c1\":null}', null, null, '2020-04-03 22:02:48', '2020-04-03 23:10:57', null, '0', '1', '1');
+INSERT INTO `biz_order_process` VALUES ('cceb4d30-75b3-11ea-8233-01241a541daf', '模具生产', '24e25bf0-71c2-11ea-9172-2743e53b85d0', '', null, '{\"com\":\"o1\"}', null, null, '2020-04-03 22:02:48', '2020-04-03 23:10:57', null, '0', '0', '1');
 
 -- ----------------------------
 -- Table structure for biz_process
@@ -116,8 +122,8 @@ CREATE TABLE `biz_step` (
 -- ----------------------------
 -- Records of biz_step
 -- ----------------------------
-INSERT INTO `biz_step` VALUES ('323f8fd0-6d02-11ea-b8ac-635441d89dad', 't2', '成型（干压）', '[{\"name\":\"测试2\",\"work\":\"1\",\"key\":\"c2\",\"type\":\"text\"},{\"name\":\"测试1\",\"work\":\"123\",\"key\":\"c1\",\"type\":\"textarea\"}]', '2', '2020-03-23 20:31:18', '2020-04-01 22:54:17', '成型（干压） -- 测试', '1', '0');
-INSERT INTO `biz_step` VALUES ('72873570-7036-11ea-a6a5-4b1e2f1cc8c3', 't1', '模具生产', '[{\"type\":\"dict_outsource\",\"key\":\"com\",\"name\":\"素烧外协\"}]', '1', '2020-03-27 22:22:54', null, '尝试', '1', '0');
+INSERT INTO `biz_step` VALUES ('323f8fd0-6d02-11ea-b8ac-635441d89dad', 't2', '成型（干压）', '[{\"name\":\"测试2\",\"work\":\"1\",\"key\":\"c2\",\"type\":\"InputNumber\",\"def\":\"1\"},{\"name\":\"测试1\",\"work\":\"123\",\"key\":\"c1\",\"type\":\"Input\",\"def\":\"0\"}]', '2', '2020-03-23 20:31:18', '2020-04-02 21:26:05', '成型（干压） -- 测试', '1', '0');
+INSERT INTO `biz_step` VALUES ('72873570-7036-11ea-a6a5-4b1e2f1cc8c3', 't1', '模具生产', '[{\"type\":\"dict_outsource\",\"key\":\"com\",\"name\":\"素烧外协\",\"def\":\"1\"}]', '1', '2020-03-27 22:22:54', '2020-04-02 21:26:14', '尝试', '1', '0');
 
 -- ----------------------------
 -- Table structure for sys_dict
@@ -159,18 +165,24 @@ INSERT INTO `sys_dict` VALUES ('a2', '0', '未开始', 'order_status', '订单�
 INSERT INTO `sys_dict` VALUES ('a3', '1', '生产中', 'order_status', '订单状态', '2', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('a4', '3', '暂停', 'order_status', '订单状态', '4', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('a5', '4', '取消', 'order_status', '订单状态', '5', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('b1', '1', '是', 'boolean_type', '状态', '1', '2020-03-23 20:19:24', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('b2', '0', '否', 'boolean_type', '状态', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('bde6043665ef4571b85d0edab667cd15', '3', '树结构表', 'table_type', '表类型', '40', '2016-01-06 19:48:50', '2016-01-06 19:48:50', '', '0');
 INSERT INTO `sys_dict` VALUES ('cc94b0c5df554a46894991210a5fc486', '2', '附表', 'table_type', '表类型', '30', '2016-01-05 21:47:38', '2016-01-05 21:53:44', '', '0');
 INSERT INTO `sys_dict` VALUES ('o1', 'o1', '素烧工厂A', 'outsource', '外协单位', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('o2', 'o2', '素烧工厂B', 'outsource', '外协单位', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('o3', 'o3', '素烧工厂C', 'outsource', '外协单位', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('op1', '0', '待处理', 'order_process_type', '订单生产状态', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('op2', '1', '处理中', 'order_process_type', '订单生产状态', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('op3', '2', '完成', 'order_process_type', '订单生产状态', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('op4', '3', '取消', 'order_process_type', '订单生产状态', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('p1', '0', '银联', 'pay_type', '付款方式', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('p2', '1', '支付宝', 'pay_type', '付款方式', '2', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('ps0', '0', '未付款', 'pay_status', '付款状态', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('ps1', '1', '部分付款', 'pay_status', '付款状态', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('ps2', '2', '已付款', 'pay_status', '付款状态', '2', '2020-03-23 20:19:48', null, null, '0');
-INSERT INTO `sys_dict` VALUES ('s1', 'text', '文本', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
-INSERT INTO `sys_dict` VALUES ('s2', 'num', '数字', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('s1', 'Input', '文本', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
+INSERT INTO `sys_dict` VALUES ('s2', 'InputNumber', '数字', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('s3', 'textarea', '多行文本', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('s4', 'dict_outsource', '外协单位', 'field_type', '类型', '1', '2020-03-23 20:19:48', null, null, '0');
 INSERT INTO `sys_dict` VALUES ('t1', 't1', '模具', 'order_step', '订单环节', '1', '2020-03-23 20:19:48', null, null, '0');
@@ -276,7 +288,7 @@ CREATE TABLE `sys_role` (
 -- Records of sys_role
 -- ----------------------------
 INSERT INTO `sys_role` VALUES ('05b473a0-f69d-11e7-a516-971fc283909c', '111111', '2018-01-11 14:59:52', '2018-01-05 15:46:23', null, '0');
-INSERT INTO `sys_role` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '222222aaa', '2018-01-11 15:00:02', '2018-01-11 15:08:40', null, '0');
+INSERT INTO `sys_role` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '222222aaa', '2018-01-11 15:00:02', '2020-04-03 22:34:43', null, '0');
 INSERT INTO `sys_role` VALUES ('1c54e003c1fc4dcd9b087ef8d48abac3', '操作员', '2015-11-11 15:59:43', '2017-10-27 23:48:27', '', '0');
 INSERT INTO `sys_role` VALUES ('48252730-f615-11e7-b7c3-65b70d485048', '测试', '2018-01-10 22:48:12', '2018-01-05 15:46:23', null, '0');
 INSERT INTO `sys_role` VALUES ('711911f0-f5df-11e7-8d24-11bfb4b0f3be', '管理员', '2018-01-10 16:22:48', '2018-01-11 17:28:46', null, '0');
@@ -302,8 +314,22 @@ INSERT INTO `sys_role_menu` VALUES ('05b473a0-f69d-11e7-a516-971fc283909c', '1')
 INSERT INTO `sys_role_menu` VALUES ('05b473a0-f69d-11e7-a516-971fc283909c', '2');
 INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '1');
 INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '16');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '2');
 INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '3');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '41');
 INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '49');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '51');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '55');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '56');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '57');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '58');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '59');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '60');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '61');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '62');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '63');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '64');
+INSERT INTO `sys_role_menu` VALUES ('0be9f5b0-f69d-11e7-a516-971fc283909c', '80');
 INSERT INTO `sys_role_menu` VALUES ('48252730-f615-11e7-b7c3-65b70d485048', '1');
 INSERT INTO `sys_role_menu` VALUES ('48252730-f615-11e7-b7c3-65b70d485048', '2');
 INSERT INTO `sys_role_menu` VALUES ('48252730-f615-11e7-b7c3-65b70d485048', '41');
