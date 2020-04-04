@@ -36,13 +36,18 @@ exports.model = {
   },
   mysql: {
     handle: mysql,
-    database: 'admin',
+    // database: 'admin',
+    database: 'sonar',
     prefix: '',
     encoding: 'utf8',
-    host: 'localhost',
+    host: '192.168.16.2',
     port: '3306',
     user: 'root',
-    password: '123456',
+    password: 'P@44w0rd',
+    // host: 'localhost',
+    // port: '3306',
+    // user: 'root',
+    // password: '123456',
     dateStrings: true
   }
 };

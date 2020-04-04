@@ -29,7 +29,7 @@ module.exports = class extends think.Model {
   }
 
   async pageData(param){
-    let sql=this.page(param.current).where({del_flag:0}).order('create_date desc');
+    let sql=this.page(param.current).where({del_flag:0}).order('sort_no asc');
     if(!think.isEmpty(param.name)){
       sql=sql.where({name:['like', '%'+param.name+'%']});
     }
@@ -38,7 +38,7 @@ module.exports = class extends think.Model {
   }
 
   async allData(param){
-    let data=await this.where({del_flag:0}).select();
+    let data=await this.where({del_flag:0}).order('sort_no asc').select();
     return data;
   }
 

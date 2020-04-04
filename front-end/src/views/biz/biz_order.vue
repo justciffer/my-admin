@@ -263,7 +263,7 @@
             </div>
         </Modal>
 
-         <Modal  title="定制流程"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
+         <Modal  title="定制流程 (已经开始生产的订单会被重置)"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
              <Form ref="formRef_start" :model="startOrderForm" :rules="startOrderFormRules" :label-width="200">
                  <FormItem label="订单编号" prop="order_no">
                      <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
