@@ -4,16 +4,17 @@
 <template>
     <div class="main" :class="{'main-hide-text': shrink}">
         <div class="sidebar-menu-con" :style="{width: shrink?'60px':'200px', overflow: shrink ? 'visible' : 'auto'}">
-            <shrinkable-menu 
+            <shrinkable-menu
                 :shrink="shrink"
                 @on-change="handleSubmenuChange"
-                :theme="menuTheme" 
+                :theme="menuTheme"
                 :before-push="beforePush"
                 :open-names="openedSubmenuArr"
                 :menu-list="menuList">
                 <div slot="top" class="logo-con">
-                    <img v-show="!shrink"  src="../images/logo.jpg" key="max-logo" />
-                    <img v-show="shrink" src="../images/logo-min.jpg" key="min-logo" />
+                    <p style="font-size: xx-large;color: #2d8cf0">E&nbsp;&nbsp;B&nbsp;&nbsp;S</p>
+                    <!--<img v-show="!shrink"  src="../images/logo.jpg" key="max-logo" />-->
+                    <!--<img v-show="shrink" src="../images/logo-min.jpg" key="min-logo" />-->
                 </div>
             </shrinkable-menu>
         </div>
@@ -34,7 +35,7 @@
                     <lock-screen></lock-screen>
                     <message-tip v-model="mesCount"></message-tip>
                     <theme-switch></theme-switch>
-                    
+
                     <div class="user-dropdown-menu-con">
                         <Row type="flex" justify="end" align="middle" class="user-dropdown-innercon">
                             <Dropdown transfer trigger="click" @on-click="handleClickUserDropdown">
@@ -76,7 +77,7 @@
     import messageTip from './main-components/message-tip.vue';
     import themeSwitch from './main-components/theme-switch/theme-switch.vue';
     import util from '@/libs/util.js';
-    
+
     export default {
         components: {
             shrinkableMenu,
@@ -96,7 +97,7 @@
             };
         },
         computed: {
-            menuList () {                
+            menuList () {
                 return this.$store.state.app.menuList;
             },
             pageTagsList () {
@@ -123,9 +124,9 @@
         },
         methods: {
             init () {
-                this.$store.commit('mountMyMenulist',this);   
+                this.$store.commit('mountMyMenulist',this);
                 let pathArr = util.setCurrentPath(this, this.$route.name);
-                
+
                 if (pathArr.length >= 2) {
                     this.$store.commit('addOpenSubmenu', pathArr[1].name);
                 }
