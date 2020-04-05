@@ -38,8 +38,8 @@
                             :data="stepList" :titles="['所有环节','选中环节']"
                             :target-keys="step_config_data"   :render-format="renderStep"   @on-change="handleChangeStep"  ></Transfer>
                 </FormItem>
-                <FormItem label="备注" prop="remarks">
-                    <Input v-model="formValidate.remarks"></Input>
+                <FormItem label="备注" prop="remark">
+                    <Input v-model="formValidate.remark" type="textarea"></Input>
                 </FormItem>
                 <FormItem label="状态" prop="status">
                     <Select style="width:200px" v-model="formValidate.status" >
@@ -60,8 +60,8 @@
                 <FormItem label="环节定义">
                     <Table height="200" border stripe  size="small" :columns="show_step_cols" :data="show_step_data"></Table>
                 </FormItem>
-                <FormItem label="备注">
-                    <Input v-model="formValidate.remarks" readonly></Input>
+                <FormItem label="备注" prop="remark">
+                    <Input v-model="formValidate.remark" type="textarea" readonly></Input>
                 </FormItem>
                 <FormItem label="状态">
                     <Input  :value="convertDict('status_type',formValidate.status)"  readonly></Input>
@@ -207,9 +207,6 @@
                     name: [
                         { required: true, message: '流程名称为必填项'}
                     ],
-                    remarks: [
-                        { required: true, message: '备注为必填项'}
-                    ],
                     status: [
                         { required: true, message: '状态为必填项'}
                     ],
@@ -248,7 +245,7 @@
                 this.init();
             },
             add (){
-                this.formValidate={};
+                this.formValidate={status:'1'};
                 this.step_config_data = [];
                 this.modalAdd=true;
             },

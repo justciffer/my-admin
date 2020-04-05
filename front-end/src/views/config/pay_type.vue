@@ -3,21 +3,17 @@
 <template>
      <div>    
         <Row>
-            <Col span="24">
+            <Col span="12">
                 <Card>
                     <p slot="title">
                         <Icon type="ios-list"></Icon>
-                        业务配置
+                        {{page_title}}
                     </p>
-                    <Row>
-                        <Input v-model="searchForm.type" placeholder="请输入类型" style="width: 200px" />
-                        <span @click="handleSearch" style="margin: 0 10px;"><Button type="primary" icon="search">搜索</Button></span>
-                    </Row>
                     <Row style="margin-top:10px;">
                         <Button type="info" @click="add">添加</Button>
                     </Row>
                     <Row type="flex" justify="center" align="middle" class="advanced-router">
-                        <Table border stripe :columns="columns" :data="data" :loading="loading"style="width: 100%;margin-top:10px"></Table>
+                        <Table border stripe :columns="columns" :data="data" :loading="loading" style="width: 100%;margin-top:10px"></Table>
                         <Page :total="count" :current="searchForm.current" show-total  style="margin-top:10px;" @on-change="pageChange"></Page>
                     </Row>
                 </Card>
@@ -25,20 +21,14 @@
         </Row>
         <Modal  title="操作框"  :mask-closable="false" :closable="false" v-model="modalAdd">
             <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
-                <FormItem label="描述" prop="description">
-                    <Input v-model="formValidate.description"></Input>
-                </FormItem>
-                <FormItem label="类别" prop="type">
-                    <Input v-model="formValidate.type"></Input>
-                </FormItem>
-                <FormItem label="标签" prop="label">
+                <FormItem label="名称" prop="label">
                     <Input v-model="formValidate.label"></Input>
                 </FormItem>
-                 <FormItem label="键值" prop="value">
-                    <Input v-model="formValidate.value"></Input>
-                </FormItem>
                 <FormItem label="排序" prop="sort">
-                   <InputNumber :min="1" v-model="formValidate.sort"></InputNumber>
+                    <InputNumber :min="1" v-model="formValidate.sort"></InputNumber>
+                </FormItem>
+                <FormItem label="备注" prop="remarks">
+                    <Input v-model="formValidate.remarks"></Input>
                 </FormItem>
             </Form>
             <div slot="footer">
@@ -54,6 +44,8 @@
     export default {
         data () {
             return {
+                page_title:'付款方式',
+                page_type:'pay_type',
                 modalAdd:false,
                 modalEdit:false,
                 loading:false,
@@ -64,22 +56,18 @@
                     current:1
                 },
                 count:0,
-                columns: [                  
+                columns: [
                     {
-                        title: '描述',
-                        key: 'description'
-                    },
-                    {
-                        title: '类别',
-                        key: 'type'
+                        title: '排序',
+                        key: 'sort'
                     },
                     {
                         title: '标签',
                         key: 'label'
                     },
                     {
-                        title: '键值',
-                        key: 'value'
+                        title: '备注',
+                        key: 'remarks'
                     },
                     {
                         title: '操作',
@@ -102,16 +90,29 @@
                                         }
                                     }
                                 }, '编辑'),
-                                h('Button', {
+                                h('Poptip', {
                                     props: {
-                                        size: 'small'
+                                        confirm: true,
+                                        title: '您确定要删除这条数据吗?',
+                                        transfer: true
                                     },
                                     on: {
-                                        click: () => {
-                                            this.remove(params)
+                                        'on-ok': () => {
+                                            this.remove(params);
                                         }
                                     }
-                                }, '删除')
+                                }, [
+                                    h('Button', {
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        props: {
+                                            type: 'error',
+                                            placement: 'top',
+                                            size: 'small'
+                                        }
+                                    }, '删除')
+                                ])
                             ]);
                         }
                     }
@@ -121,18 +122,9 @@
                     sort: 1
                 },
                 ruleValidate: {
-                    description: [
-                        { required: true, message: '必填项', trigger: 'blur' }
-                    ],
-                    type: [
-                        { required: true, message: '必填项', trigger: 'blur' }
-                    ],
                     label: [
                         { required: true, message: '必填项', trigger: 'blur' }
                     ],
-                    value: [
-                        { required: true, message: '必填项', trigger: 'blur' }
-                    ]
                 }
             }
         },
@@ -140,6 +132,7 @@
             init () {
                 let _self=this;
                 _self.loading=true;
+                this.searchForm.type= this.page_type;
                 util.post(this,'admin/sys_dict/pageData',this.searchForm,function(datas){                  
                     _self.data=datas.data;
                     _self.count=datas.count;
@@ -152,15 +145,18 @@
             },
             pageChange(current){
                 this.searchForm.current=current;
-                console.log(this.searchForm);
                 this.init();
             },
             add (){       
-                this.formValidate={sort: 1};            
+                this.formValidate={sort: 1};
+                this.formValidate.type=this.page_type;
+                this.formValidate.value=this.page_type+"#" + util.uuid();
+                this.formValidate.description=this.page_title;
                 this.modalAdd=true;            
             },
             edit (param) {
                 this.formValidate=util.copy(param.row);
+                this.formValidate.type=this.page_type;
                 this.modalAdd=true;                          
             },
             remove (param) {

@@ -21,9 +21,6 @@
                         </Select>
                         <span @click="handleSearch"><Button type="primary" icon="search">搜索</Button></span>
                     </Row>
-                    <!--<Row style="margin-top:10px;">-->
-                        <!--<Button type="info" @click="add">添加</Button>-->
-                    <!--</Row>-->
                     <Row type="flex" justify="center" align="middle" class="advanced-router">
                         <Table border stripe :columns="columns" :data="data" :loading="loading" style="width: 100%;margin-top:10px"></Table>
                         <Page :total="count" :current="searchForm.current" show-total  style="margin-top:10px;" @on-change="pageChange"></Page>
@@ -31,13 +28,10 @@
                 </Card>
             </Col>
         </Row>
-         <!--width="1000"-->
-        <Modal  title="编辑"  :mask-closable="false" :closable="false" fullscreen v-model="openDetail" >
+        <Modal  title="订单生产" :mask-closable="false" :closable="false" v-model="openDetail" scrollable width="850">
             <order-detail :order_id="detailId"></order-detail>
-
-            <div slot="footer">
-                <Button type="error" size="large" long @click="closeDetail">关闭</Button>
-                <!--<Button type="error" size="large" long :loading="modal_loading" @click="del">Delete</Button>-->
+            <div slot="footer"  align="center">
+                <Button  size="large" long @click="closeDetail">关闭</Button>
             </div>
         </Modal>
     </div>
@@ -97,13 +91,6 @@
                         ellipsis:true,
                         align: 'center',
                     },
-                    /*{
-                        title: '数量',
-                        key: 'pro_num',
-                        className: 'table-min-width',
-                        ellipsis:true,
-                        align: 'center',
-                    },*/
                     {
                         title: '状态',
                         key: 'status',
@@ -141,7 +128,7 @@
                                             this.edit(params)
                                         }
                                     }
-                                }, '编辑'),
+                                }, '办理'),
                             ]);
                         }
                     }
@@ -168,11 +155,12 @@
                 this.init();
             },
             edit (param) {
-                this.detailId=util.copy(param.row).id;
+                this.detailId=util.copy(param.row).order_id;
                 this.openDetail=true;
              },
             closeDetail () {
                 this.openDetail=false;
+                this.init();
             },
 
         },

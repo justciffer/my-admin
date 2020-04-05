@@ -1,5 +1,4 @@
 <template>
-    <!--<Form :lable-width="lableWidth">-->
     <div>
         <FormItem
                 v-for="(item,index) in list"
@@ -23,7 +22,6 @@
             </component>
         </FormItem>
     </div>
-    <!--</Form>-->
 </template>
 
 
@@ -40,10 +38,6 @@
         props:{
             list:{
                 type:Array,
-                default:()=>{}
-            },
-            parent_form:{
-                type:Object,
                 default:()=>{}
             }
         },

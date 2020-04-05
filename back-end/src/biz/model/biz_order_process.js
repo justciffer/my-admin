@@ -31,6 +31,14 @@ module.exports = class extends think.Model {
     await this.where({id:id}).update(param);
   }
 
+    async updateDataAsNew(param){
+        let id=param.id;
+        param.update_date=think.datetime();
+        param.create_date=think.datetime();
+        delete param.id;
+        await this.where({id:id}).update(param);
+    }
+
   async pageData(param){
     let sql=this.alias('a').join({
         table: 'sys_user',
@@ -38,10 +46,14 @@ module.exports = class extends think.Model {
         as: 'b',
         on: ['user_id', 'id']
     }).join({
+        table: 'biz_step',
+        as: 'd',
+        on: ['step_id', 'id']
+    }).join({
         table: 'biz_order',
         as: 'c',
         on: ['order_id', 'id']
-    }).field("a.*,b.name as user_name,c.order_no as o_order_no,c.name as o_name,c.invoice_date as o_invoice_date,"+
+    }).field("a.*,b.name as user_name,d.name as step_name,c.order_no as o_order_no,c.name as o_name,c.invoice_date as o_invoice_date,"+
         "c.pro_num as o_pro_num,c.pro_price as o_pro_price"
     ).page(param.current).where({'a.del_flag':0}).order('a.create_date desc');
     if(!think.isEmpty(param.plan_date)){
@@ -56,6 +68,22 @@ module.exports = class extends think.Model {
     let data = await sql.countSelect();
     return data;
   }
+  
+  async listInOrder(orderId){
+      let sql=this.alias('a').join({
+          table: 'sys_user',
+          join: 'left',
+          as: 'b',
+          on: ['user_id', 'id']
+      }).join({
+          table: 'biz_step',
+          as: 'd',
+          on: ['step_id', 'id']
+      }).field("a.*,b.name as user_name,d.order_step as s_order_step,d.name as s_step_name,d.form_config as s_form_config"
+      ).where({'a.del_flag':0,'a.order_id':orderId}).order('a.sort_no asc');
+      let data = await sql.select();
+      return data;
+  }
 
   async allData(param){
     let data=await this.where({del_flag:0}).select();
@@ -65,4 +93,8 @@ module.exports = class extends think.Model {
   async getData(id){
     return await this.where({id: id,del_flag:0}).find();
   }
+
+  async getDataByParam(order_id,sort_no){
+        return await this.where({order_id: order_id,sort_no:sort_no,del_flag:0}).find();
+    }
 };

@@ -1,71 +1,5 @@
 <template>
     <Tabs type="card">
-        <TabPane label="环节">
-            <Alert type="success"  v-if="nowStep == 999"  show-icon>
-                订单已经完成生产
-                <span slot="desc">完成时间 ：{{orderData.finish_date}} </span>
-            </Alert>
-            <Form ref="formRef" v-if="nowStep < 999" :model="stepForm" :rules="ruleValidate" :label-width="80" inline>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="环节名称" prop="step_name">
-                            <Input v-model="stepForm.s_step_name" disabled="" style="width:200px"></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="预计时间" prop="plan_date">
-                            <DatePicker type="datetime" format="yyyy-MM-dd HH:mm"  v-model="stepForm.plan_date" style="width: 200px"
-                                        @on-change="stepForm.plan_date=$event"  ></DatePicker>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="经手人" prop="user_name">
-                            <Input v-model="stepForm.user_name" style="width:200px" disabled></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="数量" prop="pro_num">
-                            <InputNumber style="width: 200px"
-                                         v-model="stepForm.pro_num"
-                                         :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
-                                         :parser="value => value.replace(/\$\s?|(,*)/g, '')"></InputNumber>
-                        </FormItem>
-                    </iCol>
-                </Row>
-
-                <my-form-group :list="stepItems" ></my-form-group>
-
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="完成时间" prop="finish_date">
-                            <Input v-model="stepForm.finish_date" style="width:200px"  disabled></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="状态" prop="status">
-                            <Input  :value="convertDict('order_process_type',stepForm.status)" style="width:200px" disabled></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="备注" prop="remarks">
-                            <Input v-model="stepForm.remarks"  type="textarea" style="width:400px"></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row >
-                    <iCol span="24" align="center">
-                        <Button type="info"  size="large" v-if="stepForm.status == '0'" @click="doAccept">办理</Button>
-                        <Button type="success"  size="large"  v-if="stepForm.status != '0'" @click="doSave">保存</Button>
-                        <Button type="warning"  size="large"  v-if="stepForm.status != '0'" @click="doFinish">完成</Button>
-                        <Button type="error"  size="large" v-if="nowStep > 0 && stepForm.status != '0'" @click="doReject">回退</Button>
-                    </iCol>
-                </Row>
-            </Form>
-        </TabPane>
         <TabPane label="订单">
             <Form :model="orderData" :label-width="100" inline>
                 <Row>
@@ -164,39 +98,109 @@
         </TabPane>
         <TabPane label="流程">
             <div style="max-height: 450px;overflow:auto">
-            <Steps :current="nowStep" direction="vertical">
+                <Alert type="warning"  v-if="nowStep == 1111"  show-icon>
+                    订单还没有开始生产
+                </Alert>
+                <Steps :current="nowStep" v-if="nowStep < 1111" direction="vertical">
                     <Step  v-for="(item,index) in stepList" :title="convertDict('order_process_type',item.status)"   :key = "`${_uid}_${index}`" :content="'环节：' + item.s_step_name +  (item.finish_date? '  ，完成时间：'+item.finish_date:'')"></Step>
-            </Steps>
+                </Steps>
             </div>
+        </TabPane>
+        <TabPane label="环节">
+            <Alert type="warning"  v-if="nowStep == 1111"  show-icon>
+                订单还没有开始生产
+            </Alert>
+
+            <Alert type="success"  v-if="nowStep == 999"  show-icon>
+                订单已经完成生产
+                <span slot="desc">完成时间 ：{{orderData.finish_date}} </span>
+            </Alert>
+            <Form ref="formRef" v-if="nowStep < 999" :model="stepForm" :rules="ruleValidate" :label-width="80" inline>
+                <Row>
+                    <iCol span="12">
+                        <FormItem label="环节名称" prop="step_name">
+                            <Input v-model="stepForm.s_step_name" disabled="" style="width:200px"></Input>
+                        </FormItem>
+                    </iCol>
+                    <iCol span="12">
+                        <FormItem label="预计时间" prop="plan_date">
+                            <DatePicker type="datetime" format="yyyy-MM-dd HH:mm"  v-model="stepForm.plan_date" style="width: 200px"
+                                        @on-change="stepForm.plan_date=$event"  ></DatePicker>
+                        </FormItem>
+                    </iCol>
+                </Row>
+                <Row>
+                    <iCol span="12">
+                        <FormItem label="经手人" prop="user_name">
+                            <Input v-model="stepForm.user_name" style="width:200px" disabled></Input>
+                        </FormItem>
+                    </iCol>
+                    <iCol span="12">
+                        <FormItem label="数量" prop="pro_num">
+                            <InputNumber style="width: 200px"
+                                         v-model="stepForm.pro_num"
+                                         :formatter="value => `${value}`.replace(/\B(?=(\d{3})+(?!\d))/g, ',')"
+                                         :parser="value => value.replace(/\$\s?|(,*)/g, '')"></InputNumber>
+                        </FormItem>
+                    </iCol>
+                </Row>
+
+                <my-form-group :list="stepItems" ></my-form-group>
+
+                <Row>
+                    <iCol span="12">
+                        <FormItem label="完成时间" prop="finish_date">
+                            <Input v-model="stepForm.finish_date" style="width:200px"  disabled></Input>
+                        </FormItem>
+                    </iCol>
+                    <iCol span="12">
+                        <FormItem label="状态" prop="status">
+                            <Input  :value="convertDict('order_process_type',stepForm.status)" style="width:200px" disabled></Input>
+                        </FormItem>
+                    </iCol>
+                </Row>
+                <Row>
+                    <iCol span="12">
+                        <FormItem label="备注" prop="remarks">
+                            <Input v-model="stepForm.remarks"  type="textarea" style="width:400px"></Input>
+                        </FormItem>
+                    </iCol>
+                </Row>
+            </Form>
         </TabPane>
         <TabPane label="办理历史">
             <div style="max-height: 450px;overflow:auto">
-            <Alert type="warning" v-if="nowStep <= 0" show-icon> 暂无办理历史记录</Alert>
-            <Collapse v-if="nowStep > 0">
-                <Panel  v-for="(item,index) in stepList"  v-if="item.status == '2'" :name="`${index}`" :key = "`${_uid}_${index}`" >
-                    {{item.s_step_name}} &nbsp;&nbsp;<Icon type="ios-arrow-forward" />&nbsp;&nbsp; {{item.user_name}}  &nbsp;&nbsp;<Icon type="ios-arrow-forward" /> &nbsp;&nbsp;{{item.finish_date}}
-                    <p slot="content">
-                        <Row>
-                            <iCol span="24">
-                                <iCol span="3" align="right">环节名称：</iCol>   <iCol >{{item.s_step_name}}</iCol>
-                            </iCol>
-                            <iCol span="24">
-                                <iCol span="3" align="right">经手人：</iCol>   <iCol>{{item.user_name}}</iCol>
-                            </iCol>
-                            <iCol span="24">
-                                <iCol span="3" align="right">完成时间：</iCol>   <iCol>{{item.finish_date}}</iCol>
-                            </iCol>
-                            <iCol span="24">
-                                <iCol span="3" align="right">数量：</iCol>   <iCol>{{item.pro_num}}</iCol>
-                            </iCol>
-                            <my-form-group-read :list="item.items" ></my-form-group-read>
-                            <iCol span="24">
-                                <iCol span="3" align="right">备注：</iCol>   <iCol>{{item.remarks}}</iCol>
-                            </iCol>
-                        </Row>
-                    </p>
-                </Panel>
-            </Collapse>
+                <Alert type="warning"  v-if="nowStep == 1111"  show-icon>
+                    订单还没有开始生产
+                </Alert>
+
+                <Alert type="warning" v-if="nowStep <= 0" show-icon> 暂无办理历史记录</Alert>
+
+                <Collapse v-if="nowStep > 0 && nowStep < 1111">
+                    <Panel  v-for="(item,index) in stepList"  v-if="item.status == '2'" :name="`${index}`" :key = "`${_uid}_${index}`" >
+                        {{item.s_step_name}} &nbsp;&nbsp;<Icon type="ios-arrow-forward" />&nbsp;&nbsp; {{item.user_name}}  &nbsp;&nbsp;<Icon type="ios-arrow-forward" /> &nbsp;&nbsp;{{item.finish_date}}
+                        <p slot="content">
+                            <Row>
+                                <iCol span="24">
+                                    <iCol span="3" align="right">环节名称：</iCol>   <iCol >{{item.s_step_name}}</iCol>
+                                </iCol>
+                                <iCol span="24">
+                                    <iCol span="3" align="right">经手人：</iCol>   <iCol>{{item.user_name}}</iCol>
+                                </iCol>
+                                <iCol span="24">
+                                    <iCol span="3" align="right">完成时间：</iCol>   <iCol>{{item.finish_date}}</iCol>
+                                </iCol>
+                                <iCol span="24">
+                                    <iCol span="3" align="right">数量：</iCol>   <iCol>{{item.pro_num}}</iCol>
+                                </iCol>
+                                <my-form-group-read :list="item.items" ></my-form-group-read>
+                                <iCol span="24">
+                                    <iCol span="3" align="right">备注：</iCol>   <iCol>{{item.remarks}}</iCol>
+                                </iCol>
+                            </Row>
+                        </p>
+                    </Panel>
+                </Collapse>
             </div>
         </TabPane>
     </Tabs>
@@ -206,7 +210,7 @@
     import myFormGroup from '@/views/my/my-form-group.vue';
     import myFormGroupRead from '@/views/my/my-form-group-read.vue';
     export default {
-        name: "orderDetail",
+        name: "orderDetailRead",
         components: {
             myFormGroup,
             myFormGroupRead
@@ -258,6 +262,11 @@
                             _self.stepForm = {};
                             _self.stepItems= [];
                         }
+                        if(datas.list.length == 0){
+                            _self.nowStep=1111;
+                            _self.stepForm = {};
+                            _self.stepItems= [];
+                        }
 
                         _self.stepForm.pro_num= _self.stepForm.pro_num ? Number.parseInt( _self.stepForm.pro_num) : null;
                         _self.stepForm.plan_date = _self.stepForm.plan_date ? new Date(_self.stepForm.plan_date) : null;
@@ -272,44 +281,6 @@
             convertDict(type,value){
                 return util.showDictLabel(type,value);
             },
-            doAccept(){
-                this.doSth('doAccept');
-            },
-            doSave(){
-                this.doSth('doSave');
-            },
-            doFinish(){
-                this.doSth('doFinish');
-            },
-            doReject(){
-                this.doSth('doReject');
-            },
-            doSth(type){
-                let _self=this;
-                let _item_data = {};
-                if(this.stepItems && this.stepItems.length > 0){
-                    this.stepItems.forEach(item=>{
-                        _item_data[item.key]=item.i_value?item.i_value:null;
-                    });
-                }
-                this.stepForm.form_data=JSON.stringify(_item_data);
-                this.$refs['formRef'].validate((valid) => {
-                    if (valid) {
-                        util.changeModalLoading(this,true);
-                        let _data=util.copy(this.stepForm);
-                        _data.op_type=type;
-                        _data.plan_date = _data.plan_date ? util.formatDate(new Date(_data.plan_date), 'yyyy-MM-dd hh:mm:ss') : null;
-                        util.post(this,'biz/biz_order_process/doProcess',_data,function(datas){
-                            _self.$Message.success('操作成功！');
-                            util.changeModalLoading(_self);
-                            _self.init();
-                        });
-                    }else{
-                        util.changeModalLoading(this);
-                    }
-                })
-            },
-
         },
         mounted () {
             this.status_dict=util.showDictList('order_process_type');

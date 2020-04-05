@@ -24,6 +24,40 @@ module.exports = class extends Base {
     return this.success();
   }
 
+    async detailAction() {
+        let param=this.post();
+        let order = {};
+        if(param.id){
+            order = await this.model('biz_order').getData(param.id);
+        }
+        return this.success(order);
+    }
+
+    async processInfoAction() {
+        let param=this.post();
+        let processInfo = {};
+        if(param.id){
+            processInfo.order = await this.model('biz_order').getData(param.id);
+            let orderProcessList = await this.model('biz_order_process').listInOrder(param.id);
+            if(orderProcessList){
+                orderProcessList.forEach(step=>{
+                    let _form_config = JSON.parse(step.s_form_config);
+                    let _form_data = JSON.parse(step.form_data);
+
+                    if(!think.isEmpty(_form_data)){
+                        _form_config.forEach(item=>{
+                            item.value=_form_data[item.key];
+                        });
+                    }
+                    step.items=_form_config;
+                });
+            }
+            processInfo.list=orderProcessList;
+        }
+
+        return this.success(processInfo);
+    }
+
   async updateDataAction() {
     let param=this.post();
     await this.model('biz_order').updateData(param);
@@ -68,13 +102,17 @@ module.exports = class extends Base {
          */
 
         let first= true;
+        let index=0;
         for(const  step of param.stepList) {
             let order_step_data={};
             order_step_data.order_id= param.order_id;
             // order_step_data.user_id= this.userInfo().id;
-            order_step_data.step_name= step.name;
+            order_step_data.step_id= step.id;
             order_step_data.status= '0';
             order_step_data.process_status= first? '1' : '0';
+            order_step_data.process_id= param.process_id;
+            order_step_data.sort_no= ++index ;
+
             first=false;
             let _data={};
             if(step.itemList && step.itemList.length > 0){
@@ -85,23 +123,6 @@ module.exports = class extends Base {
             order_step_data.form_data=JSON.stringify(_data);
             await this.model('biz_order_process').addData(order_step_data);
         }
-        // const dosth = async() => {
-        //     for(const  step of param.stepList) {
-        //         let order_step_data={};
-        //         order_step_data.order_id=param.order_id;
-        //         order_step_data.user_id= this.userInfo().id;
-        //         order_step_data.status= '0';
-        //         let _data={};
-        //         if(step.itemList && step.itemList.length > 0){
-        //             step.itemList.forEach(item=>{
-        //                 _data.form_data[item.origin_key]=item.i_value?item.i_value:null;
-        //             });
-        //         }
-        //         order_step_data.form_data=JSON.stringify(_data);
-        //         await this.model('biz_order_process').addData(order_step_data);
-        //     }
-        // };
-        // dosth();
 
       //设置生产中
       order.status = '1';

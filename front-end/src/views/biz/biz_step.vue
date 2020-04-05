@@ -48,7 +48,7 @@
                     <Input v-model="formValidate.sort_no"></Input>
                 </FormItem>
                 <FormItem label="备注信息" prop="remarks">
-                    <Input v-model="formValidate.remarks"></Input>
+                    <Input v-model="formValidate.remarks"  type="textarea" ></Input>
                 </FormItem>
                 <FormItem label="状态" prop="status">
                     <Select style="width:200px" v-model="formValidate.status" >
@@ -79,7 +79,7 @@
                     <Input v-model="formValidate.sort_no" readonly></Input>
                 </FormItem>
                 <FormItem label="备注信息">
-                    <Input v-model="formValidate.remarks" readonly></Input>
+                    <Input v-model="formValidate.remarks"  type="textarea" readonly></Input>
                 </FormItem>
                 <FormItem label="状态">
                     <Input  :value="convertDict('status_type',formValidate.status)"  readonly></Input>
@@ -317,9 +317,6 @@
                     sort_no: [
                         { required: true, message: '排序为必填项'}
                     ],
-                    remarks: [
-                        { required: true, message: '备注信息为必填项'}
-                    ],
                     status: [
                         { required: true, message: '状态为必填项'}
                     ],
@@ -348,7 +345,7 @@
                 this.init();
             },
             add (){
-                this.formValidate={};
+                this.formValidate={status:'1'};
                 this.form_config_data=[];
                 this.modalAdd=true;
             },

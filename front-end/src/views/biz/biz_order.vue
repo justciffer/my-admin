@@ -115,7 +115,9 @@
                     </iCol>
                     <iCol span="12">
                     <FormItem label="客户联系人" prop="custom">
-                        <Input v-model="formValidate.custom"></Input>
+                        <Select style="width:200px" v-model="formValidate.custom" >
+                            <Option v-for="item in custom_dict"  :value="item.value" :key="item.value" >{{ item.label }}</Option>
+                        </Select>
                     </FormItem>
                     </iCol>
                 </Row>
@@ -164,106 +166,14 @@
                 <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
             </div>
         </Modal>
-        <Modal  title="详情" v-model="modalDetail" width="700">
-            <Form :model="formValidate" :label-width="100">
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="订单编号" prop="order_no">
-                            <Input v-model="formValidate.order_no" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="名称" prop="name">
-                            <Input v-model="formValidate.name" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="型号" prop="pro_type">
-                            <Input v-model="formValidate.pro_type" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="数量" prop="pro_num">
-                            <Input  :value="formValidate.pro_num ? formValidate.pro_num.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="价格" prop="pro_price">
-                            <Input  :value="formValidate.pro_price ? formValidate.pro_price.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',') : ''"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="含税" prop="with_tax">
-                            <Input  :value="formValidate.with_tax=='1' ? '是':'否'"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="开票日期" prop="invoice_date">
-                            <Input  :value="formatDate(formValidate.invoice_date)"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="材质" prop="pro_material">
-                            <Input v-model="formValidate.pro_material" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="原料厂家" prop="material_source">
-                            <Input v-model="formValidate.material_source" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">
-                        <FormItem label="客户联系人" prop="custom">
-                            <Input v-model="formValidate.custom" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12">
-                        <FormItem label="预计交期" prop="plan_date">
-                            <Input  :value="formatDate(formValidate.plan_date)"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12">  <!--order_status-->
-                        <FormItem label="状态" prop="status">
-                            <Input  :value="convertDict('order_status',formValidate.status)"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="12"> <!--pay_type-->
-                        <FormItem label="付款方式" prop="pay_type">
-                            <Input  :value="convertDict('pay_type',formValidate.pay_type)"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                    <iCol span="12"> <!--pay_status-->
-                        <FormItem label="付款状态" prop="pay_status">
-                            <Input  :value="convertDict('pay_status',formValidate.pay_status)"  readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
-                <Row>
-                    <iCol span="24">
-                        <FormItem label="备注" prop="remark">
-                            <Input v-model="formValidate.remark" type="textarea" readonly></Input>
-                        </FormItem>
-                    </iCol>
-                </Row>
 
-            </Form>
+        <Modal  title="详情" v-model="modalDetail" scrollable  width="850">
+            <order-detail-read :order_id="detailId"></order-detail-read>
             <div slot="footer">
             </div>
         </Modal>
 
-         <Modal  title="定制流程 (已经开始生产的订单会被重置)"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700">
+         <Modal  title="定制流程 (已经开始生产的订单会被重置)"  :mask-closable="false" :closable="false" v-model="showStartOrder" width="700" >
              <Form ref="formRef_start" :model="startOrderForm" :rules="startOrderFormRules" :label-width="200">
                  <FormItem label="订单编号" prop="order_no">
                      <Input v-model="startOrderForm.order_no" readonly="" style="width:200px"></Input>
@@ -273,7 +183,7 @@
                  </FormItem>
                  <FormItem label="流程模板" prop="process_id">
                      <Select style="width:200px" v-model="startOrderForm.process_id" @on-change="showStep" >
-                         <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + " -- " + item.remarks}}</Option>
+                         <Option v-for="item in process_list"  :value="item.id" :key="item.id" >{{ item.name + (item.remarks?" -- "+item.remarks:'')}}</Option>
                      </Select>
                  </FormItem>
                  <div class="line-box">
@@ -293,13 +203,16 @@
 <script>
     import util from '@/libs/util.js';
     import myFormGroup from '@/views/my/my-form-group.vue';
+    import orderDetailRead from '@/views/biz/order_detail_read.vue';
 
     export default {
         components: {
-            myFormGroup
+            myFormGroup,
+            orderDetailRead
         },
         data () {
             return {
+                detailId:'',
                 modalAdd:false,
                 modalDetail:false,
                 showStartOrder:false,
@@ -311,6 +224,7 @@
                 modalCanBut:true,
                 order_status_dict:{},
                 pay_status_dict:{},
+                custom_dict:{},
                 pay_type_dict:{},
                 process_list:{},
                 searchForm:{
@@ -616,14 +530,15 @@
 
             add (){
                 this.formValidate={
-                   with_tax:'0'
+                    with_tax:'0',
+                    status:'0',
+                    pro_price:null,
+                    pro_num:null
                 };
                 this.modalAdd=true;
             },
             show (param) {
-                this.formValidate=util.copy(param.row);
-                this.formValidate.pro_price=Number.parseFloat( this.formValidate.pro_price);
-                this.formValidate.pro_num=Number.parseInt( this.formValidate.pro_num);
+                this.detailId = param.row.id;
                 this.modalDetail=true;
              },
             edit (param) {
@@ -684,6 +599,7 @@
             this.order_status_dict=util.showDictList('order_status');
             this.pay_status_dict=util.showDictList('pay_status');
             this.pay_type_dict=util.showDictList('pay_type');
+            this.custom_dict=util.showDictList('custom');
 
             this.init();
         }

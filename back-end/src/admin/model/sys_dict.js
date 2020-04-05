@@ -22,7 +22,7 @@ module.exports = class extends think.Model {
 	}
 
 	async pageData(param){
-		let sql=this.page(param.current).order("create_date desc");
+		let sql=this.page(param.current).order("type asc,sort asc");
 		if(!think.isEmpty(param.type)){
 			sql=sql.where({type:['like', '%'+param.type+'%']});
 		}

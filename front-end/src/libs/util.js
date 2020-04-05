@@ -4,13 +4,19 @@ import env from '../../build/env';
 import semver from 'semver';
 import packjson from '../../package.json';
 import Main from '@/views/Main.vue';
+import UUID from 'uuid';
 
 let util = {
 
 };
+
 util.title = function (title) {
     title = title || '后台管理系统';
     window.document.title = title;
+};
+
+util.uuid = function () {
+   return UUID.v4().toString();
 };
 
 const ajaxUrl = env === 'development'
@@ -35,8 +41,7 @@ util.post = function (vm,url, param,cb) {
         }
     });
     axiosIns.post(url, param ).then( res => {  
-        console.log(res.data);
-        vm.loading =false; 
+        vm.loading =false;
         if(res&&res.status==200&&res.data&&res.data.errno==0){
             cb(res.data.data);
         }else{
@@ -48,8 +53,6 @@ util.post = function (vm,url, param,cb) {
                 vm.$Message.error('请求数据异常，请稍后重试！');
             }           
         }
-        
-        
     }).catch(err => {
         console.log(err);
         vm.$Message.destroy();

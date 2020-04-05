@@ -1,58 +1,51 @@
 <style lang="less">
-.fa {
-    font-size: larger!important;
-}
 </style>
-
 <template>
      <div>    
         <Row>
-            <Col span="24">
+            <Col span="12">
                 <Card>
                     <p slot="title">
                         <Icon type="ios-list"></Icon>
-                        角色列表
+                        {{page_title}}
                     </p>
-                    <Row>
-                        <Input v-model="searchForm.name" placeholder="请输入角色名称" style="width: 200px" />
-                        <span @click="handleSearch" style="margin: 0 10px;"><Button type="primary" icon="search">搜索</Button></span>
-                    </Row>
                     <Row style="margin-top:10px;">
                         <Button type="info" @click="add">添加</Button>
                     </Row>
                     <Row type="flex" justify="center" align="middle" class="advanced-router">
-                        <Table border stripe :columns="columns" :data="data" :loading="loading"style="width: 100%;margin-top:10px"></Table>
+                        <Table border stripe :columns="columns" :data="data" :loading="loading" style="width: 100%;margin-top:10px"></Table>
                         <Page :total="count" :current="searchForm.current" show-total  style="margin-top:10px;" @on-change="pageChange"></Page>
                     </Row>
                 </Card>
             </Col>
         </Row>
-
-    <Modal  title="操作框"  :mask-closable="false" :closable="false" v-model="modalAdd">
-        <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
-            <FormItem label="名称" prop="name">
-                <Input v-model="formValidate.name"></Input>
-            </FormItem>
-             <FormItem label="权限">
-                <vue-tree ref="Tree" v-model="treeCheckedIds"  :tree-data="menuList"  :options="treeOptions"></vue-tree>
-            </FormItem>
-            
-        </Form>
-         <div slot="footer">
-            <Button type="text" @click="addCanFun" v-show="modalCanBut">取消</Button>
-            <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
-        </div>
-    </Modal>    
+        <Modal  title="操作框"  :mask-closable="false" :closable="false" v-model="modalAdd">
+            <Form ref="formRef" :model="formValidate" :rules="ruleValidate" :label-width="80">
+                <FormItem label="名称" prop="label">
+                    <Input v-model="formValidate.label"></Input>
+                </FormItem>
+                <FormItem label="排序" prop="sort">
+                    <InputNumber :min="1" v-model="formValidate.sort"></InputNumber>
+                </FormItem>
+                <FormItem label="备注" prop="remarks">
+                    <Input v-model="formValidate.remarks"></Input>
+                </FormItem>
+            </Form>
+            <div slot="footer">
+                <Button type="text" @click="addCanFun" v-show="modalCanBut">取消</Button>
+                <Button type="primary" @click="addOkFun" :loading="modalLoading">确定</Button>
+            </div>
+        </Modal>    
     </div>
 </template>
 
 <script>
-    import VueTree from 'vue-simple-tree/src/components/VueTree.vue';
     import util from '@/libs/util.js';
     export default {
-        components: { VueTree },
         data () {
             return {
+                page_title:'设备',
+                page_type:'device',
                 modalAdd:false,
                 modalEdit:false,
                 loading:false,
@@ -62,20 +55,19 @@
                     type:'',
                     current:1
                 },
-                treeCheckedIds: [],
-                menuList: [],               
-                treeOptions: {
-                    label:'title'
-                },
                 count:0,
-                columns: [                  
+                columns: [
                     {
-                        title: '名称',
-                        key: 'name'
+                        title: '排序',
+                        key: 'sort'
                     },
                     {
-                        title: '创建时间',
-                        key: 'create_date'
+                        title: '标签',
+                        key: 'label'
+                    },
+                    {
+                        title: '备注',
+                        key: 'remarks'
                     },
                     {
                         title: '操作',
@@ -98,16 +90,29 @@
                                         }
                                     }
                                 }, '编辑'),
-                                h('Button', {
+                                h('Poptip', {
                                     props: {
-                                        size: 'small'
+                                        confirm: true,
+                                        title: '您确定要删除这条数据吗?',
+                                        transfer: true
                                     },
                                     on: {
-                                        click: () => {
-                                            this.remove(params)
+                                        'on-ok': () => {
+                                            this.remove(params);
                                         }
                                     }
-                                }, '删除')
+                                }, [
+                                    h('Button', {
+                                        style: {
+                                            marginRight: '5px'
+                                        },
+                                        props: {
+                                            type: 'error',
+                                            placement: 'top',
+                                            size: 'small'
+                                        }
+                                    }, '删除')
+                                ])
                             ]);
                         }
                     }
@@ -117,9 +122,9 @@
                     sort: 1
                 },
                 ruleValidate: {
-                    name: [
+                    label: [
                         { required: true, message: '必填项', trigger: 'blur' }
-                    ]
+                    ],
                 }
             }
         },
@@ -127,10 +132,9 @@
             init () {
                 let _self=this;
                 _self.loading=true;
-                util.post(this,'admin/sys_role/pageData',this.searchForm,function(datas){                  
+                this.searchForm.type= this.page_type;
+                util.post(this,'admin/sys_dict/pageData',this.searchForm,function(datas){                  
                     _self.data=datas.data;
-
-                    console.log(datas);
                     _self.count=datas.count;
                     _self.loading=false;                  
                 });
@@ -143,31 +147,22 @@
                 this.searchForm.current=current;
                 this.init();
             },
-            add (){                    
-                this.treeCheckedIds=[];
-                this.treeOptions= {
-                    label:'title'
-                };
+            add (){       
+                this.formValidate={sort: 1};
+                this.formValidate.type=this.page_type;
+                this.formValidate.value=this.page_type+"#" + util.uuid();
+                this.formValidate.description=this.page_title;
                 this.modalAdd=true;            
             },
             edit (param) {
-                this.treeCheckedIds=[];
-                if(param.row.role_menus&&param.row.role_menus.length>0){
-                    let ids=param.row.role_menus.split(','); 
-                    for (let i = 0; i < ids.length; i++) {
-                        this.treeCheckedIds.push(parseInt(ids[i]));
-                    }            
-                }    
                 this.formValidate=util.copy(param.row);
-                this.treeOptions= {
-                    label:'title'
-                };
-                this.modalAdd=true;
+                this.formValidate.type=this.page_type;
+                this.modalAdd=true;                          
             },
             remove (param) {
                 let _self=this;
                 this.loading=true;
-                util.post(this,'admin/sys_role/delData',{id:param.row.id},function(datas){ 
+                util.post(this,'admin/sys_dict/delData',{id:param.row.id},function(datas){ 
                     _self.data.splice(param.index, 1);
                     _self.loading =false;               
                     _self.$Message.success('删除成功！');              
@@ -178,16 +173,15 @@
                 this.$refs['formRef'].validate((valid) => {
                     if (valid) {
                         util.changeModalLoading(this,true);
-                        let _data=util.copy(this.formValidate);  
-                        _data.menuids=util.copy(this.treeCheckedIds);
+                        let _data=util.copy(this.formValidate);     
                         if(this.formValidate&&this.formValidate.id){
-                            util.post(this,'admin/sys_role/updateData',_data,function(datas){                  
+                            util.post(this,'admin/sys_dict/updateData',_data,function(datas){                  
                                 _self.$Message.success('编辑成功！');
                                 _self.addCanFun();  
                                 _self.init();        
                             });                          
                         }else{
-                            util.post(this,'admin/sys_role/addData',_data,function(datas){                  
+                            util.post(this,'admin/sys_dict/addData',_data,function(datas){                  
                                 _self.$Message.success('新增成功！');
                                 _self.addCanFun(); 
                                 _self.init();                
@@ -197,20 +191,15 @@
                     }else{
                         util.changeModalLoading(this);
                     } 
-                })        
+                })            
             },         
             addCanFun(){      
                 this.modalAdd=false; 
                 util.changeModalLoading(this);         
                 this.$refs['formRef'].resetFields(); 
-                this.formValidate={};
             }
         },
         mounted () {
-            let _self=this;
-            util.post(this,'admin/sys_menu/getMenuTree',{},function(datas){ 
-                _self.menuList =datas;                          
-            });
             this.init();
         }
     }

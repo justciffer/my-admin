@@ -71,7 +71,12 @@ export default {
                 if (valid) {                 
                     this.loading = true;
                     util.post(this,'admin/sys_user/login',{login_name:this.form.userName,password:this.form.password},function(datas){
+
+                        console.log(datas);
                         _self.loading = true;
+
+                        localStorage.setItem('user_name', datas.name);
+                        localStorage.setItem('login_date', datas.login_date);
                         localStorage.setItem('user', datas.login_name);
                         localStorage.setItem('token', datas.token);    
                         localStorage.setItem('menuList', JSON.stringify(datas.menu));                        
