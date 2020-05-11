@@ -33,7 +33,7 @@
     "rasterizehtml": "^1.2.4",
     "simplemde": "^1.11.2",
     "sortablejs": "^1.7.0",
-    "tinymce": "^4.7.3",
+    "tinymce": "^4.9.10",
     "vue": "^2.5.13",
     "vue-core-image-upload": "^2.4.1",
     "vue-router": "^3.0.1",
