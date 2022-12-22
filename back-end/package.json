@@ -13,7 +13,7 @@
   "dependencies": {
     "id-16": "^1.0.4",
     "id-gen": "^0.3.2",
-    "jsonwebtoken": "^8.1.0",
+    "jsonwebtoken": "^9.0.0",
     "kcors": "^2.2.1",
     "qiniu": "^7.1.1",
     "request-promise": "^4.2.2",
